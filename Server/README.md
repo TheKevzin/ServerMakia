@@ -20,6 +20,9 @@ Estructura completa de configuración y mods para el servidor de Minecraft en **
   - `spark-1.10.170-fabric.jar`: Diagnóstico y medición de TPS en tiempo real.
   - `alternate-current-mc1.21.11-1.9.0.jar`: Redstone ultrarrápido y sin lag.
   - `Clumps-fabric-1.21.11-29.0.0.1.jar`: Agrupación de orbes de experiencia.
+  - `servercore-fabric-1.5.15+1.21.11.jar`: Distancia de simulación dinámica y optimización de entidades/granjas.
+  - `graves-3.10.2+1.21.11.jar`: Sistema de tumbas de muerte (Universal Graves) 100% server-side.
+  - `polymer-bundled-0.15.2+1.21.11.jar`: Motor de compatibilidad server-side para que jugadores vanilla vean las tumbas sin mods.
 
 ## 🌐 Conexión y Accesos Públicos
 
