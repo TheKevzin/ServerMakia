@@ -25,7 +25,7 @@ export async function GET() {
     if (isRunning) {
       if (process.platform === 'linux') {
         try {
-          const { stdout } = await execAsync("ps -eo etimes,args | grep -iE 'fabric-server-launch|screen.*minecraft' | grep -v grep | awk '{print $1}' | head -n 1");
+          const { stdout } = await execAsync("ps -eo etimes,args | grep -E '[f]abric-server-launch' | awk '{print $1}' | head -n 1");
           const val = parseInt(stdout.trim());
           if (!isNaN(val)) uptime = val;
         } catch (e) {

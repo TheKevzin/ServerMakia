@@ -17,12 +17,12 @@ export class ServerManager {
       // Fallback
     }
 
-    // 2. Si estamos en Linux, verificar si el proceso o screen ya existe (iniciando)
+    // 2. Si estamos en Linux, verificar si el proceso de Java/Fabric está activo
     if (process.platform === 'linux') {
       try {
         return await new Promise<boolean>((resolve) => {
-          exec('pgrep -f "fabric-server-launch" || screen -list | grep -q "minecraft"', (err) => {
-            resolve(!err);
+          exec('pgrep -f "[f]abric-server-launch"', (err, stdout) => {
+            resolve(!err && stdout.trim().length > 0);
           });
         });
       } catch (e) {
@@ -41,7 +41,7 @@ export class ServerManager {
 
     try {
       // En Linux usamos screen para iniciar el server en segundo plano de forma independiente
-      exec('screen -dmS minecraft bash start.sh', { cwd: SERVER_DIR });
+      exec(`cd "${SERVER_DIR}" && screen -dmS minecraft bash start.sh`);
       return { success: true, message: 'Server starting via screen...' };
     } catch (e: any) {
       return { success: false, message: e.message };
@@ -60,7 +60,12 @@ export class ServerManager {
       rcon.end();
       return { success: true, message: 'Stop command sent via RCON' };
     } catch (e: any) {
-      return { success: false, message: e.message };
+      try {
+        exec('screen -S minecraft -X stuff "stop^M" 2>/dev/null || pkill -f "[f]abric-server-launch"');
+        return { success: true, message: 'Stop signal sent to server' };
+      } catch (e2: any) {
+        return { success: false, message: e.message };
+      }
     }
   }
 

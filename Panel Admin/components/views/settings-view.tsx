@@ -264,17 +264,17 @@ export function SettingsView() {
       {/* Content Area */}
       <div className="flex-1 max-w-4xl">
         {isServerOnline && activeTab !== 'danger' && (
-          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 animate-in fade-in">
-            <p className="text-sm font-semibold text-amber-400 flex items-center gap-2">
+          <div className="mb-6 rounded-xl border border-sky-500/30 bg-sky-500/10 p-4 animate-in fade-in">
+            <p className="text-sm font-semibold text-sky-400 flex items-center gap-2">
               <AlertTriangle className="size-4" /> 
-              Stop the server to modify settings.
+              Nota: El servidor está en línea. Los cambios de configuración se aplicarán en el próximo reinicio.
             </p>
           </div>
         )}
         
         {/* GENERAL TAB */}
         {activeTab === 'general' && (
-          <div className={cn("glass rounded-3xl p-6 animate-in fade-in slide-in-from-right-4 transition-opacity", isServerOnline && "opacity-50 pointer-events-none")}>
+          <div className="glass rounded-3xl p-6 animate-in fade-in slide-in-from-right-4 transition-opacity">
             <div className="mb-6 border-b border-border pb-4">
               <h2 className="font-heading text-lg font-semibold text-foreground">Server Properties</h2>
               <p className="text-sm text-muted-foreground">Core configuration applied on next restart</p>
@@ -366,7 +366,7 @@ export function SettingsView() {
 
         {/* RULES TAB */}
         {activeTab === 'rules' && (
-          <div className={cn("grid gap-6 sm:grid-cols-2 animate-in fade-in slide-in-from-right-4 transition-opacity", isServerOnline && "opacity-50 pointer-events-none")}>
+          <div className="grid gap-6 sm:grid-cols-2 animate-in fade-in slide-in-from-right-4 transition-opacity">
             {settingGroups.map((g) => (
               <div key={g.group} className="glass flex flex-col rounded-3xl h-fit">
                 <div className="border-b border-border p-5">
@@ -390,7 +390,7 @@ export function SettingsView() {
 
         {/* PERFORMANCE TAB */}
         {activeTab === 'performance' && (
-          <div className={cn("glass rounded-3xl p-6 animate-in fade-in slide-in-from-right-4 transition-opacity", isServerOnline && "opacity-50 pointer-events-none")}>
+          <div className="glass rounded-3xl p-6 animate-in fade-in slide-in-from-right-4 transition-opacity">
             <div className="mb-6 border-b border-border pb-4">
               <h2 className="font-heading text-lg font-semibold text-foreground">Performance & JVM Flags</h2>
               <p className="text-sm text-muted-foreground">Adjust memory allocation and Java settings</p>
@@ -456,7 +456,7 @@ export function SettingsView() {
 
         {/* INTEGRATIONS TAB */}
         {activeTab === 'integrations' && (
-          <div className={cn("grid gap-6 animate-in fade-in slide-in-from-right-4 transition-opacity", isServerOnline && "opacity-50 pointer-events-none")}>
+          <div className="grid gap-6 animate-in fade-in slide-in-from-right-4 transition-opacity">
             <div className="glass rounded-3xl p-6">
               <div className="mb-6 border-b border-border pb-4">
                 <h2 className="font-heading text-lg font-semibold text-foreground">Discord Webhooks</h2>
