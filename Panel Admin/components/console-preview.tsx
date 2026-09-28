@@ -142,7 +142,7 @@ export function ConsolePreview({ className }: { className?: string }) {
         <input
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          placeholder="Ej: /say Hello Enderlab..."
+          placeholder="Ej: /say Hola ServerMakia..."
           className="flex-1 bg-transparent font-mono text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none relative z-10"
         />
         <button

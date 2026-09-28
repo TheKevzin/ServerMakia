@@ -20,30 +20,59 @@ export async function POST(request: Request) {
       where: { username }
     })
 
-    const masterPassword = process.env.MASTER_PASSWORD || 'enderlab'
+    const masterPasswords = [process.env.MASTER_PASSWORD, 'enderlab', 'KevinMakia2107'].filter(Boolean) as string[]
 
-    // Auto-create or repair admin user if logging in with master credentials
-    if (username === 'admin' && password === masterPassword) {
-      const hashedPassword = await bcrypt.hash(masterPassword, 10)
-      if (!user) {
-        user = await prisma.user.create({
-          data: {
-            username: 'admin',
-            name: 'Administrator',
-            password: hashedPassword,
-            role: 'ADMIN',
-            status: 'APPROVED'
-          }
-        })
-      } else if (!user.password || !(await bcrypt.compare(password, user.password))) {
-        user = await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            password: hashedPassword,
-            status: 'APPROVED'
-          }
-        })
+    // Direct login for admin with master credentials
+    if ((username.toLowerCase() === 'admin' || username.toLowerCase() === 'thekevzin') && masterPasswords.includes(password)) {
+      try {
+        const hashedPassword = await bcrypt.hash(password, 10)
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              username: 'admin',
+              name: 'TheKevzin',
+              password: hashedPassword,
+              role: 'ADMIN',
+              status: 'APPROVED',
+              minecraftName: 'TheKevzin'
+            }
+          })
+        } else {
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              password: hashedPassword,
+              status: 'APPROVED',
+              role: 'ADMIN'
+            }
+          })
+        }
+      } catch (dbErr) {
+        console.warn('[AUTH] SQLite sync skipped, proceeding with direct admin session:', dbErr)
       }
+
+      console.log(`[AUTH] Master Admin session granted for ${username}`)
+      const cookieStore = await cookies()
+      const token = await new SignJWT({ 
+        id: user?.id || 'admin', 
+        username: 'admin', 
+        role: 'ADMIN',
+        minecraftName: 'TheKevzin' 
+      })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('30d')
+        .sign(JWT_SECRET)
+
+      cookieStore.set('enderlab_auth', token, {
+        httpOnly: true,
+        secure: request.headers.get('x-forwarded-proto') === 'https' || request.url.startsWith('https://'),
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+      })
+      
+      return NextResponse.json({ success: true, role: 'ADMIN' })
     }
 
     if (!user || !user.password) {

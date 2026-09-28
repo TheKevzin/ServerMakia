@@ -10,10 +10,10 @@ export async function POST(req: Request) {
 
     const embed = {
       title: '✅ Webhook Test Successful!',
-      description: 'Your EnderLab panel is successfully connected to this Discord channel.',
+      description: 'Tu panel ServerMakia está conectado exitosamente con este canal de Discord.',
       color: 6424319, // #6206bf, primary color
       footer: {
-        text: 'EnderLab Server Panel'
+        text: 'ServerMakia — Fabric 1.21.11'
       },
       timestamp: new Date().toISOString()
     };
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        username: 'EnderLab',
+        username: 'ServerMakia Bot',
         embeds: [embed]
       })
     });

@@ -98,8 +98,7 @@ export async function POST(req: Request) {
     // Config files are small but important for server identity
     const includes = [
       './world',
-      './world_nether',
-      './world_the_end',
+      './config',
       './server.properties',
       './whitelist.json',
       './banned-players.json',

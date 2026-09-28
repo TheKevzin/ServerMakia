@@ -1,16 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Lock, ArrowRight, Loader2 } from 'lucide-react'
 import { toast } from '@/lib/toast'
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('')
+  const [username, setUsername] = useState('admin')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [isError, setIsError] = useState(false)
-  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,21 +19,21 @@ export default function LoginPage() {
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username: username.trim() || 'admin', password })
       })
       
       if (res.ok) {
-        toast.success('Access granted. Initiating sequence...')
+        toast.success('Acceso autorizado. Redirigiendo...')
         window.location.href = '/' // Force hard redirect
       } else {
         setIsError(true)
-        toast.error('Invalid credentials')
+        toast.error('Credenciales incorrectas')
         setPassword('')
         setTimeout(() => setIsError(false), 500)
       }
     } catch (err) {
       setIsError(true)
-      toast.error('Network error')
+      toast.error('Error de red o conexión')
       setTimeout(() => setIsError(false), 500)
     } finally {
       setLoading(false)
@@ -64,8 +62,8 @@ export default function LoginPage() {
             </div>
           </div>
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Enderlab</h1>
-            <p className="text-sm text-muted-foreground mt-2">Control Panel Access</p>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">ServerMakia</h1>
+            <p className="text-sm text-muted-foreground mt-2">Panel de Control de Servidor</p>
           </div>
         </div>
 
@@ -75,15 +73,15 @@ export default function LoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
-              autoFocus
+              placeholder="Usuario"
               className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/5 text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground/50 mb-4"
             />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
+              placeholder="Contraseña"
+              autoFocus
               className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/5 text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground/50"
             />
           </div>
@@ -95,22 +93,14 @@ export default function LoginPage() {
             {loading ? (
               <>
                 <Loader2 className="size-5 animate-spin" />
-                <span>Authenticating...</span>
+                <span>Verificando...</span>
               </>
             ) : (
               <>
-                <span>Sign In</span>
+                <span>Ingresar al Panel</span>
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </>
             )}
-          </button>
-          
-          <button 
-            type="button" 
-            onClick={() => router.push('/register')}
-            className="text-sm text-muted-foreground hover:text-white transition-colors mt-2"
-          >
-            Don't have an account? Request access here
           </button>
         </form>
       </div>

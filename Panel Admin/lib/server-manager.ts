@@ -8,14 +8,29 @@ const SERVER_DIR = path.resolve(process.cwd(), '../server');
 export class ServerManager {
   
   static async isRunning() {
-    // Para saber si está corriendo en Linux, intentamos conectarnos por RCON
+    // 1. Intentar por RCON (servidor listo y respondiendo)
     try {
       const rcon = await this.getRcon();
       rcon.end();
       return true;
     } catch (e) {
-      return false;
+      // Fallback
     }
+
+    // 2. Si estamos en Linux, verificar si el proceso o screen ya existe (iniciando)
+    if (process.platform === 'linux') {
+      try {
+        return await new Promise<boolean>((resolve) => {
+          exec('pgrep -f "fabric-server-launch" || screen -list | grep -q "minecraft"', (err) => {
+            resolve(!err);
+          });
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    return false;
   }
 
   static async start() {

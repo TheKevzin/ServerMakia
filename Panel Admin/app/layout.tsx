@@ -11,9 +11,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Enderlab — Server Control Panel',
+  title: 'ServerMakia — Server Control Panel',
   description:
-    'Premium control panel for the Enderlab Minecraft server. Monitor metrics, manage players, and control your world.',
+    'Panel de administración y monitoreo para el servidor de Minecraft Fabric 1.21.11 ServerMakia.',
   generator: 'v0.app',
   icons: {
     icon: [

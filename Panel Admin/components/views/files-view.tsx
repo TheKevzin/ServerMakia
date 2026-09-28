@@ -302,7 +302,7 @@ export function FilesView() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <HardDrive className="size-4 text-end-stone" />
           <div className="flex items-center gap-1 font-mono text-xs">
-            <span className="text-end-stone/70">/enderlab</span>
+            <span className="text-end-stone/70">/servermakia</span>
             <span className="text-muted-foreground">/</span>
             <span className="text-end-stone/70">server</span>
             {activePath.map(node => (

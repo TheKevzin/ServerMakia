@@ -10,20 +10,16 @@ import {
   FolderTree,
   DatabaseBackup,
   LogOut,
-  Map as MapIcon,
 } from 'lucide-react'
 import { navGroups, type NavIcon } from '@/lib/data'
-import { useRouter } from 'next/navigation'
 
 const iconMap: Record<NavIcon, typeof LayoutDashboard> = {
   dashboard: LayoutDashboard,
-  map: MapIcon,
   console: TerminalSquare,
   players: Users,
   settings: Settings,
   files: FolderTree,
   backups: DatabaseBackup,
-  users: Users,
 }
 
 export function Sidebar({
@@ -35,8 +31,6 @@ export function Sidebar({
   onNavigate: (id: string) => void
   role: string
 }) {
-  const router = useRouter()
-
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     window.location.href = '/login'
@@ -51,30 +45,20 @@ export function Sidebar({
         </div>
         <div className="hidden lg:block">
           <p className="font-heading text-sm font-semibold leading-tight text-foreground">
-            Enderlab
+            ServerMakia
           </p>
-          <p className="text-xs text-muted-foreground">Control Panel</p>
+          <p className="text-xs text-muted-foreground">Panel Admin</p>
         </div>
       </div>
 
       <nav className="flex flex-1 flex-row gap-1 lg:flex-col lg:gap-0">
         {navGroups.map((group) => {
-          let filteredItems = group.items
-          if (role === 'VIEWER') {
-             filteredItems = filteredItems.filter(i => ['dashboard', 'map'].includes(i.id))
-          }
-          if (role === 'MODERATOR') {
-             filteredItems = filteredItems.filter(i => !['files', 'backups', 'settings', 'users'].includes(i.id))
-          }
-
-          if (filteredItems.length === 0) return null
-
           return (
             <div key={group.group} className="flex flex-row gap-1 lg:flex-col">
               <p className="hidden px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70 first:lg:pt-0 lg:block">
                 {group.group}
               </p>
-              {filteredItems.map((item) => {
+              {group.items.map((item) => {
                 const Icon = iconMap[item.icon]
                 const isActive = active === item.id
                 return (
@@ -115,10 +99,10 @@ export function Sidebar({
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium text-foreground truncate">Online</p>
-            <p className="text-[11px] text-muted-foreground truncate">v1.20.4 · Paper</p>
+            <p className="text-[11px] text-muted-foreground truncate">1.21.11 · Fabric</p>
           </div>
         </div>
-        <button onClick={handleLogout} className="shrink-0 p-1 text-muted-foreground hover:text-rose-400 transition-colors" title="Logout">
+        <button onClick={handleLogout} className="shrink-0 p-1 text-muted-foreground hover:text-rose-400 transition-colors" title="Cerrar sesión">
           <LogOut className="size-4" />
         </button>
       </div>

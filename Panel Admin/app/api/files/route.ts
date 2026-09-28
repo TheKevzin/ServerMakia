@@ -30,7 +30,7 @@ function buildTree(dirPath: string, relativePath: string = ''): FileNode[] {
 
     if (stats.isDirectory()) {
       // Evitar carpetas muy pesadas o irrelevantes si se desea
-      if (item === 'libraries' || item === 'versions') continue;
+      if (item === 'libraries' || item === 'versions' || item === 'world' || item === '.fabric' || item === 'cache') continue;
       
       nodes.push({
         id: relPath,

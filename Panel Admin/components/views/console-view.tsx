@@ -367,7 +367,7 @@ export function ConsoleView({ role }: { role?: string | null }) {
               <span className="size-3 rounded-full bg-emerald-400/70" />
             </span>
             <span className="ml-2 font-mono text-sm text-muted-foreground">
-              enderlab@survival ~ console
+              thekevzin@servermakia ~ console
             </span>
             <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-300">
               <span className={cn("size-1.5 rounded-full", isRunning ? "bg-emerald-400 animate-pulse" : "bg-rose-500")} />

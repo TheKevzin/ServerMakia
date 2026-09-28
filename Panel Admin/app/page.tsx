@@ -9,20 +9,15 @@ import { FilesView } from '@/components/views/files-view'
 import { BackupsView } from '@/components/views/backups-view'
 import { PlayersView } from '@/components/views/players-view'
 import { SettingsView } from '@/components/views/settings-view'
-import { MapView } from '@/components/views/map-view'
-import { UsersView } from '@/components/views/users-view'
-import { ViewerDashboard } from '@/components/views/viewer-dashboard'
 import { navItems } from '@/lib/data'
 
 const subtitles: Record<string, string> = {
-  dashboard: 'Live overview of your server health and activity',
-  map: 'Explore your Minecraft world in real-time 3D',
-  console: 'Stream logs and run commands in real time',
-  players: 'Manage who is online and who is banned',
-  settings: 'Configure gameplay, access, and world rules',
-  files: 'Browse and edit your server configuration files',
-  backups: 'Create, restore, and schedule world backups',
-  users: 'Manage panel access and permissions',
+  dashboard: 'Resumen en tiempo real del estado de tu servidor y recursos',
+  console: 'Registro de logs en vivo y ejecución de comandos RCON',
+  players: 'Monitoreo de jugadores activos y gestión de permisos',
+  files: 'Explorador y editor de archivos de configuración del servidor',
+  backups: 'Crear, restaurar y sincronizar copias con Google Drive',
+  settings: 'Configuración de reglas del juego, memoria y propiedades',
 }
 
 export default function Page() {
@@ -36,17 +31,26 @@ export default function Page() {
       .then(r => r.json())
       .then(d => {
         if (d.authenticated) {
-          setRole(d.role)
-          setUsername(d.username)
-          setMinecraftName(d.minecraftName)
+          setRole(d.role || 'ADMIN')
+          setUsername(d.username || 'Admin')
+          setMinecraftName(d.minecraftName || '')
+        } else {
+          window.location.href = '/login'
         }
+      })
+      .catch(() => {
+        window.location.href = '/login'
       })
   }, [])
 
   const title = navItems.find((n) => n.id === active)?.label ?? 'Dashboard'
 
   if (!role) {
-    return <div className="min-h-screen flex items-center justify-center bg-background"><div className="size-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="size-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+      </div>
+    )
   }
 
   return (
@@ -57,25 +61,12 @@ export default function Page() {
         <div className="mx-auto flex max-w-6xl flex-col gap-6">
           <TopBar title={title} subtitle={subtitles[active]} username={username} minecraftName={minecraftName} />
 
-          {active === 'dashboard' && role === 'VIEWER' && <ViewerDashboard />}
-          {active === 'dashboard' && role !== 'VIEWER' && <DashboardView role={role} />}
-          {active === 'map' && <MapView />}
-          
-          {(role === 'ADMIN' || role === 'MODERATOR') && (
-            <>
-              {active === 'console' && <ConsoleView role={role} />}
-              {active === 'players' && <PlayersView role={role} />}
-            </>
-          )}
-
-          {role === 'ADMIN' && (
-            <>
-              {active === 'files' && <FilesView />}
-              {active === 'backups' && <BackupsView />}
-              {active === 'settings' && <SettingsView />}
-              {active === 'users' && <UsersView />}
-            </>
-          )}
+          {active === 'dashboard' && <DashboardView role={role} />}
+          {active === 'console' && <ConsoleView role={role} />}
+          {active === 'players' && <PlayersView role={role} />}
+          {active === 'files' && <FilesView />}
+          {active === 'backups' && <BackupsView />}
+          {active === 'settings' && <SettingsView />}
         </div>
       </main>
     </div>
