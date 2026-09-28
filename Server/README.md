@@ -23,6 +23,8 @@ Estructura completa de configuración y mods para el servidor de Minecraft en **
   - `servercore-fabric-1.5.15+1.21.11.jar`: Distancia de simulación dinámica y optimización de entidades/granjas.
   - `graves-3.10.2+1.21.11.jar`: Sistema de tumbas de muerte (Universal Graves) 100% server-side.
   - `polymer-bundled-0.15.2+1.21.11.jar`: Motor de compatibilidad server-side para que jugadores vanilla vean las tumbas sin mods.
+  - `jei-1.21.11-fabric-27.44.0.103.jar`: Just Enough Items (servidor) para soportar el botón `+` de auto-crafteo instantáneo para clientes con JEI/EMI.
+  - `mezz_config-1.21.11-fabric-0.6.5.jar`: Librería de configuración para JEI.
 
 ## 🌐 Conexión y Accesos Públicos
 

@@ -6,8 +6,55 @@ import util from 'util';
 
 const execAsync = util.promisify(exec);
 
+let cachedTunnel = {
+  domain: 'carolyn-canine.tun.ply.gg:57814',
+  directIp: '147.185.221.215:57814',
+  local: '192.168.101.10:25565',
+  lastCheck: 0,
+};
+
+async function getLiveTunnel() {
+  const now = Date.now();
+  if (now - cachedTunnel.lastCheck < 45000) {
+    return cachedTunnel;
+  }
+
+  try {
+    const res = await fetch('https://api.playit.gg/tunnels/list', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Agent-Key a501645aa3000fcb7132eb6667388592e8ce472588eae37cca5e5cabc2fec185',
+      },
+      body: '{}',
+      signal: AbortSignal.timeout(3000),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const tunnels = data?.data?.tunnels || [];
+      const mcTunnel = tunnels.find((t: any) => t.tunnel_type === 'minecraft-java') || tunnels[0];
+      if (mcTunnel?.alloc?.data) {
+        const d = mcTunnel.alloc.data;
+        const port = d.port_start || 25565;
+        cachedTunnel = {
+          domain: `${d.assigned_domain}:${port}`,
+          directIp: `${d.static_ip4}:${port}`,
+          local: '192.168.101.10:25565',
+          lastCheck: now,
+        };
+      }
+    }
+  } catch (err) {
+    // Retain previous cache on timeout/network glitch
+  }
+
+  return cachedTunnel;
+}
+
 export async function GET() {
   const isRunning = await ServerManager.isRunning();
+  const tunnel = await getLiveTunnel();
   
   let cpu = 0;
   let ram = 0;
@@ -74,6 +121,8 @@ export async function GET() {
       tps: tps.toFixed(1),
       players,
       uptime
-    }
+    },
+    tunnel
   });
 }
+
