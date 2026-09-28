@@ -132,16 +132,22 @@ export async function POST(req: Request) {
         }
       }
 
-      // Trigger Drive upload asynchronously if configured
-      const CONFIG_PATH = path.resolve(process.cwd(), 'drive-config.json');
-      if (fs.existsSync(CONFIG_PATH)) {
-        try {
-          const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
-          if (config.folderId && config.serviceAccount) {
-            uploadAndManageDrive(backupFile, config.folderId, config.serviceAccount);
+      // Trigger Google Drive upload via rclone (5 TB personal Google Drive) with fallback
+      exec(`rclone copy "${backupFile}" "gdrive:Backups Servidor" --drive-chunk-size 64M`, (rErr) => {
+        if (!rErr) {
+          console.log('[Drive] Backup subido exitosamente a Google Drive (5 TB) vía rclone.');
+        } else {
+          const CONFIG_PATH = path.resolve(process.cwd(), 'drive-config.json');
+          if (fs.existsSync(CONFIG_PATH)) {
+            try {
+              const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+              if (config.folderId && config.serviceAccount) {
+                uploadAndManageDrive(backupFile, config.folderId, config.serviceAccount);
+              }
+            } catch {}
           }
-        } catch {}
-      }
+        }
+      });
     });
 
     // Return success immediately — the backup runs in the background

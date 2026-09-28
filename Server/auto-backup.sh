@@ -64,13 +64,10 @@ if [ "$CURRENT_COUNT" -gt "$MAX_BACKUPS" ]; then
     ls -t auto-*.tar.gz | tail -n "$DELETE_COUNT" | xargs -r rm -f
 fi
 
-# Subida automática a Google Drive si está configurado
-DRIVE_CONFIG="$PANEL_DIR/drive-config.json"
-DRIVE_SCRIPT="$PANEL_DIR/scripts/upload-drive.mjs"
-
-if [ -f "$DRIVE_CONFIG" ] && [ -f "$DRIVE_SCRIPT" ]; then
-    echo "[$(date)] Iniciando subida a Google Drive en segundo plano..."
-    cd "$PANEL_DIR" && node "$DRIVE_SCRIPT" "$BACKUP_PATH" > /dev/null 2>&1 &
+# Subida automática a Google Drive (5 TB) mediante rclone
+if command -v rclone &> /dev/null; then
+    echo "[$(date)] Subiendo backup a Google Drive (5 TB) con rclone..."
+    rclone copy "$BACKUP_PATH" "gdrive:Backups Servidor" --drive-chunk-size 64M > /dev/null 2>&1 &
 fi
 
 echo "[$(date)] Proceso de backup concluido."
