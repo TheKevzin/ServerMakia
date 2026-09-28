@@ -27,7 +27,7 @@ drive-config.json
 *.zip
 *.tar.gz
 *.tmp
-*/tmp/
+**/tmp/**
 Server/world/
 Server/libraries/
 Server/versions/
