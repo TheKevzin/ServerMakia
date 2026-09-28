@@ -21,6 +21,12 @@ Estructura completa de configuración y mods para el servidor de Minecraft en **
   - `alternate-current-mc1.21.11-1.9.0.jar`: Redstone ultrarrápido y sin lag.
   - `Clumps-fabric-1.21.11-29.0.0.1.jar`: Agrupación de orbes de experiencia.
 
+## 🌐 Conexión y Accesos Públicos
+
+- **Minecraft Java (Público)**: `carolyn-canine.tun.ply.gg:57814` (o IP directa `147.185.221.215:57814`)
+- **Panel Web Admin (Público)**: `https://dismiss-moody-frown.ngrok-free.dev`
+- **Red Local (LAN)**: `192.168.101.10:25565` (Minecraft) / `http://192.168.101.10:3000` (Panel Web)
+
 ## 🚀 Cómo Iniciar el Servidor en Ubuntu
 ```bash
 # Iniciar en segundo plano dentro de screen:
@@ -32,3 +38,4 @@ screen -r minecraft
 # Salir de la consola sin apagar:
 # Presionar Ctrl + A, luego soltar y presionar D
 ```
+
