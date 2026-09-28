@@ -1,0 +1,44 @@
+# ========================================================
+# LISTA DE MODS OFICIALES - SERVIDOR FABRIC 1.21.11
+# ========================================================
+# Tipo: Minecraft Vanilla Puro (Optimización de Alto Rendimiento)
+# Loader: Fabric Loader 0.19.5
+# Java: OpenJDK 21 LTS
+# Host: HP i5-4590 (4 núcleos @ 3.30GHz) / 16GB DDR3 RAM
+# ========================================================
+
+1. fabric-api-0.141.6+1.21.11.jar
+   - Categoría: Librería Base
+   - Función: Es la API central y requerida para que los mods de Fabric interactúen con el juego.
+
+2. lithium-fabric-0.21.4+mc1.21.11.jar
+   - Categoría: Rendimiento de Juego / Físicas
+   - Función: Optimiza la IA de mobs, físicas de bloques y ticking general sin alterar mecánicas vanilla.
+
+3. ferritecore-8.2.0-fabric.jar
+   - Categoría: Optimización de Memoria
+   - Función: Reduce drásticamente el consumo de memoria RAM de estructuras internas de datos.
+
+4. krypton-0.2.10.jar
+   - Categoría: Optimización de Red
+   - Función: Acelera la pila de paquetes de red y reduce el consumo de CPU durante desplazamientos de jugadores.
+
+5. c2me-fabric-mc1.21.11-0.4.0-alpha.0.27.jar
+   - Categoría: Multihilo de Terreno (Worldgen & I/O)
+   - Función: Ejecuta la generación y guardado de chunks en hilos paralelos (aprovecha los núcleos del CPU i5).
+
+6. Chunky-Fabric-1.4.55.jar
+   - Categoría: Utilidad / Pre-generación
+   - Función: Permite pre-generar radios del mapa en frío para evitar tirones durante la exploración en vivo.
+
+7. spark-1.10.170-fabric.jar
+   - Categoría: Diagnóstico y Monitoreo
+   - Función: Mide TPS, tiempos de tick y perfila qué entidad o bloque consume CPU en tiempo real (/spark tps).
+
+8. alternate-current-mc1.21.11-1.9.0.jar
+   - Categoría: Optimización de Redstone
+   - Función: Reescribe el motor de redstone haciéndolo hasta 10 veces más rápido y libre de lag en granjas.
+
+9. Clumps-fabric-1.21.11-29.0.0.1.jar
+   - Categoría: Optimización de Entidades
+   - Función: Agrupa los orbes de experiencia en paquetes únicos, eliminando el lag causado por granjas de mobs.
