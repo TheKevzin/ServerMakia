@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Globe, Copy, Check, Wifi, Sparkles, Layers } from 'lucide-react'
+import { StatusBadge } from '@/components/status-badge'
 
 type TunnelInfo = {
   domain: string
@@ -73,10 +74,7 @@ export function ServerConnectionCard() {
               <span className="text-xs font-bold uppercase tracking-wider text-end-stone">
                 Public Server Address (Minecraft)
               </span>
-              <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
-                <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
-                {isOnline ? 'Tunnel Active' : 'Offline'}
-              </span>
+              <StatusBadge status={isOnline ? 'online' : 'offline'} />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

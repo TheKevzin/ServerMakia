@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Sparkline } from './sparkline'
 import { Cpu, MemoryStick, Clock, Users, type LucideIcon } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { StatusBadge } from './status-badge'
 
 /**
  * Hook to smoothly interpolate numerical changes across frames
@@ -169,10 +170,7 @@ export function MetricCards() {
                 {m.label}
               </span>
             </div>
-            <span className="flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-300 border border-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.15)]">
-              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              {m.trend}
-            </span>
+            <StatusBadge status={isRunning ? 'live' : 'offline'} />
           </div>
 
           <div>
@@ -204,22 +202,7 @@ export function MetricCards() {
               Uptime
             </span>
           </div>
-          <span
-            className={cn(
-              'flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border transition-colors duration-500',
-              isRunning
-                ? 'bg-emerald-400/10 text-emerald-300 border-emerald-500/20'
-                : 'bg-rose-500/10 text-rose-300 border-rose-500/20'
-            )}
-          >
-            <span
-              className={cn(
-                'size-1.5 rounded-full transition-colors duration-500',
-                isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'
-              )}
-            />
-            {isRunning ? 'Active' : 'Offline'}
-          </span>
+          <StatusBadge status={isRunning ? 'online' : 'offline'} />
         </div>
 
         <div>

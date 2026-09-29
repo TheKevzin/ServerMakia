@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const logs = ServerManager.getLogs();
-    return NextResponse.json({ logs });
+    const isRunning = await ServerManager.isRunning();
+    return NextResponse.json({ logs, isRunning });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch logs' }, { status: 500 });
   }

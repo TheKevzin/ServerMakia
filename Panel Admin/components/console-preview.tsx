@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { TerminalSquare, ChevronRight, Trash2, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { StatusBadge } from './status-badge'
 
 type ConsoleLine = {
   time: string
@@ -37,6 +38,7 @@ export function ConsolePreview({ className }: { className?: string }) {
   const [command, setCommand] = useState('')
   const [lines, setLines] = useState<ConsoleLine[]>([])
   const [isSending, setIsSending] = useState(false)
+  const [isRunning, setIsRunning] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
   const shouldAutoScrollRef = useRef(true)
 
@@ -57,6 +59,9 @@ export function ConsolePreview({ className }: { className?: string }) {
       try {
         const res = await fetch('/api/server/logs')
         const data = await res.json()
+        if (typeof data.isRunning === 'boolean') {
+          setIsRunning(data.isRunning)
+        }
         if (!data.logs || data.logs.length === 0) return
 
         const apiLines: string[] = data.logs
@@ -197,10 +202,7 @@ export function ConsolePreview({ className }: { className?: string }) {
           <h2 className="font-heading text-sm font-bold text-foreground tracking-wide">
             Live Console
           </h2>
-          <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-300 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-400/20">
-            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Streaming
-          </span>
+          <StatusBadge status={isRunning ? 'streaming' : 'offline'} />
         </div>
 
         <div className="ml-auto flex items-center gap-1.5">

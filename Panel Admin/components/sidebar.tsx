@@ -11,7 +11,9 @@ import {
   DatabaseBackup,
   LogOut,
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { navGroups, type NavIcon } from '@/lib/data'
+import { StatusDot } from './status-badge'
 
 const iconMap: Record<NavIcon, typeof LayoutDashboard> = {
   dashboard: LayoutDashboard,
@@ -31,6 +33,27 @@ export function Sidebar({
   onNavigate: (id: string) => void
   role: string
 }) {
+  const [isRunning, setIsRunning] = useState<boolean>(true)
+
+  useEffect(() => {
+    let mounted = true
+    const check = async () => {
+      try {
+        const res = await fetch('/api/server/status')
+        const data = await res.json()
+        if (mounted && typeof data.isRunning === 'boolean') {
+          setIsRunning(data.isRunning)
+        }
+      } catch (e) {}
+    }
+    check()
+    const id = setInterval(check, 10000)
+    return () => {
+      mounted = false
+      clearInterval(id)
+    }
+  }, [])
+
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     window.location.href = '/login'
@@ -92,14 +115,15 @@ export function Sidebar({
 
       {/* Status footer */}
       <div className="glass hidden items-center justify-between gap-2 rounded-2xl p-3 lg:mt-4 lg:flex w-full">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="relative flex size-2.5 shrink-0">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-            <span className="relative inline-flex size-2.5 rounded-full bg-emerald-400" />
-          </span>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <StatusDot status={isRunning ? 'online' : 'offline'} />
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-foreground truncate">Online</p>
-            <p className="text-[11px] text-muted-foreground truncate">1.21.11 · Fabric</p>
+            <p className="text-xs font-medium text-foreground truncate">
+              {isRunning ? 'Server Online' : 'Server Offline'}
+            </p>
+            <p className="text-[11px] text-muted-foreground truncate">
+              {isRunning ? '1.21.11 · Fabric' : 'Stopped'}
+            </p>
           </div>
         </div>
         <button onClick={handleLogout} className="shrink-0 p-1 text-muted-foreground hover:text-rose-400 transition-colors" title="Sign out">

@@ -8,6 +8,7 @@ import {
   Sun, Sunrise, Moon, Activity, Zap, Users, Cloud, 
   CloudRain, CloudLightning, Clock, MoonStar, ChevronDown, MonitorPlay, Database, Gauge
 } from 'lucide-react'
+import { StatusBadge } from '@/components/status-badge'
 
 type Level = 'ALL' | 'INFO' | 'WARN' | 'ERROR'
 
@@ -369,10 +370,9 @@ export function ConsoleView({ role }: { role?: string | null }) {
             <span className="ml-2 font-mono text-sm text-muted-foreground">
               thekevzin@servermakia ~ console
             </span>
-            <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-300">
-              <span className={cn("size-1.5 rounded-full", isRunning ? "bg-emerald-400 animate-pulse" : "bg-rose-500")} />
-              {isRunning ? 'Streaming' : 'Offline'}
-            </span>
+            <div className="ml-auto">
+              <StatusBadge status={isRunning ? 'streaming' : 'offline'} />
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 font-mono text-xs leading-relaxed custom-scrollbar">
