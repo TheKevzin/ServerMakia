@@ -24,9 +24,20 @@ export function ServerConnectionCard() {
         const res = await fetch('/api/server/status')
         const data = await res.json()
         if (data.tunnel) {
-          setTunnel(data.tunnel)
+          setTunnel(prev => {
+            if (
+              prev.domain === data.tunnel.domain &&
+              prev.directIp === data.tunnel.directIp &&
+              prev.local === data.tunnel.local
+            ) {
+              return prev
+            }
+            return data.tunnel
+          })
         }
-        setIsOnline(data.isRunning ?? true)
+        if (typeof data.isRunning === 'boolean') {
+          setIsOnline(prev => (prev === data.isRunning ? prev : data.isRunning))
+        }
       } catch (e) {}
     }
 

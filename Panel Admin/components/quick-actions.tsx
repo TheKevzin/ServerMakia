@@ -37,6 +37,7 @@ const weatherActions = [
 export function QuickActions({ role }: { role?: string | null }) {
   const [time, setTime] = useState<string>('day')
   const [weather, setWeather] = useState<string>('clear')
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const logAction = (msg: string) => {
     if (typeof window !== 'undefined') {
@@ -45,18 +46,23 @@ export function QuickActions({ role }: { role?: string | null }) {
   }
 
   const handleServerAction = async (actionId: string) => {
-    if (actionId === 'start') {
-      logAction('Starting server...')
-      await fetch('/api/server/start', { method: 'POST' })
-    } else if (actionId === 'stop') {
-      logAction('Stopping server...')
-      await fetch('/api/server/stop', { method: 'POST' })
-    } else if (actionId === 'restart') {
-      logAction('Restarting server...')
-      await fetch('/api/server/stop', { method: 'POST' })
-      setTimeout(() => {
-        fetch('/api/server/start', { method: 'POST' })
-      }, 5000)
+    setActionLoading(actionId)
+    try {
+      if (actionId === 'start') {
+        logAction('Iniciando servidor Minecraft...')
+        await fetch('/api/server/start', { method: 'POST' })
+      } else if (actionId === 'stop') {
+        logAction('Deteniendo servidor Minecraft...')
+        await fetch('/api/server/stop', { method: 'POST' })
+      } else if (actionId === 'restart') {
+        logAction('Reiniciando servidor...')
+        await fetch('/api/server/stop', { method: 'POST' })
+        setTimeout(async () => {
+          await fetch('/api/server/start', { method: 'POST' })
+        }, 5000)
+      }
+    } finally {
+      setTimeout(() => setActionLoading(null), 1500)
     }
   }
 
@@ -93,27 +99,31 @@ export function QuickActions({ role }: { role?: string | null }) {
             <span className="text-xs text-muted-foreground">Server state</span>
           </div>
           <div className="grid grid-cols-1 gap-3">
-            {serverActions.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => handleServerAction(a.id)}
-                className={cn(
-                  'flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition-all active:scale-95',
-                  a.tone === 'destructive'
-                    ? 'border-destructive/30 bg-destructive/10 text-rose-300 hover:bg-destructive/20'
-                    : a.tone === 'emerald'
-                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20'
-                      : a.tone === 'neon'
-                        ? 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-                        : 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/20',
-                )}
-              >
-                <div className="flex flex-1 items-center gap-3">
-                  <a.icon className="size-4" />
-                  {a.label}
-                </div>
-              </button>
-            ))}
+            {serverActions.map((a) => {
+              const isLoading = actionLoading === a.id
+              return (
+                <button
+                  key={a.id}
+                  disabled={!!actionLoading}
+                  onClick={() => handleServerAction(a.id)}
+                  className={cn(
+                    'flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed',
+                    a.tone === 'destructive'
+                      ? 'border-destructive/30 bg-destructive/10 text-rose-300 hover:bg-destructive/20'
+                      : a.tone === 'emerald'
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20'
+                        : a.tone === 'neon'
+                          ? 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+                          : 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/20',
+                  )}
+                >
+                  <div className="flex flex-1 items-center gap-3">
+                    <a.icon className={cn("size-4", isLoading && "animate-spin")} />
+                    <span>{isLoading ? 'Ejecutando...' : a.label}</span>
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
