@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import { Sparkline } from './sparkline'
 import { Cpu, MemoryStick, Clock, Users, type LucideIcon } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
@@ -62,6 +63,7 @@ export function MetricCards() {
   const [ramHist, setRamHist] = useState<number[]>(Array(20).fill(0))
   const [playerHist, setPlayerHist] = useState<number[]>(Array(20).fill(0))
   const [uptime, setUptime] = useState('0d 0h 0m')
+  const [isRunning, setIsRunning] = useState(false)
   const initialFetchDone = useRef(false)
 
   useEffect(() => {
@@ -71,13 +73,16 @@ export function MetricCards() {
         const data = await res.json()
         if (data.metrics) {
           setMetricsData(data.metrics)
+          setIsRunning(!!data.isRunning)
           
-          if (data.metrics.uptime) {
+          if (data.isRunning && data.metrics.uptime) {
             const uptimeSecs = parseInt(data.metrics.uptime)
             const d = Math.floor(uptimeSecs / 86400)
             const h = Math.floor((uptimeSecs % 86400) / 3600)
             const m = Math.floor((uptimeSecs % 3600) / 60)
             setUptime(`${d}d ${h}h ${m}m`)
+          } else if (!data.isRunning) {
+            setUptime('Apagado')
           }
 
           const cpuVal = parseFloat(data.metrics.cpu) || 0
@@ -199,9 +204,21 @@ export function MetricCards() {
               Uptime
             </span>
           </div>
-          <span className="flex items-center gap-1.5 rounded-full bg-primary/20 px-2.5 py-0.5 text-[11px] font-semibold text-end-stone border border-primary/30">
-            <span className="size-1.5 rounded-full bg-end-stone animate-ping" />
-            Active
+          <span
+            className={cn(
+              'flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border transition-colors duration-500',
+              isRunning
+                ? 'bg-emerald-400/10 text-emerald-300 border-emerald-500/20'
+                : 'bg-rose-500/10 text-rose-300 border-rose-500/20'
+            )}
+          >
+            <span
+              className={cn(
+                'size-1.5 rounded-full transition-colors duration-500',
+                isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'
+              )}
+            />
+            {isRunning ? 'Activo' : 'Apagado'}
           </span>
         </div>
 
@@ -209,16 +226,34 @@ export function MetricCards() {
           <p className="font-heading text-3xl font-semibold tracking-tight text-foreground neon-text">
             {uptime}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">System uptime</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {isRunning ? 'Tiempo activo del servidor' : 'Servidor detenido'}
+          </p>
         </div>
 
         <div className="flex items-center gap-2 pt-2">
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full w-full rounded-full bg-gradient-to-r from-primary via-violet-500 to-[var(--neon)] relative overflow-hidden">
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+            <div
+              className={cn(
+                'h-full rounded-full relative overflow-hidden transition-all duration-700',
+                isRunning
+                  ? 'w-full bg-gradient-to-r from-primary via-violet-500 to-[var(--neon)]'
+                  : 'w-[15%] bg-gradient-to-r from-rose-500/60 to-rose-400/40'
+              )}
+            >
+              {isRunning && (
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+              )}
             </div>
           </div>
-          <span className="text-[11px] font-medium text-end-stone">Online</span>
+          <span
+            className={cn(
+              'text-[11px] font-medium transition-colors duration-500',
+              isRunning ? 'text-end-stone' : 'text-rose-300'
+            )}
+          >
+            {isRunning ? 'Online' : 'Offline'}
+          </span>
         </div>
       </div>
     </div>
