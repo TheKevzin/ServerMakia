@@ -1,12 +1,11 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { TerminalSquare, ChevronRight, Trash2, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
 type ConsoleLine = {
-  id: string
   time: string
   level: string
   text: string
@@ -23,23 +22,15 @@ function levelColor(level: string) {
   }
 }
 
-let lineCounter = 0
-
-function parseLogLine(text: string): ConsoleLine {
+function parseLogLine(raw: string): ConsoleLine {
   let level = 'INFO'
-  if (text.includes('WARN')) level = 'WARN'
-  if (text.includes('ERROR') || text.includes('Exception') || text.includes('Failed')) level = 'ERROR'
-  
-  const timeMatch = text.match(/\[(\d{2}:\d{2}:\d{2})\]/)
-  const time = timeMatch ? timeMatch[1] : new Date().toLocaleTimeString('en-GB', { hour12: false })
-  
-  lineCounter += 1
-  return { 
-    id: `log-${lineCounter}-${Date.now().toString(36)}`, 
-    time, 
-    level, 
-    text 
-  }
+  if (raw.includes('WARN')) level = 'WARN'
+  if (raw.includes('ERROR') || raw.includes('Exception') || raw.includes('Failed')) level = 'ERROR'
+
+  const timeMatch = raw.match(/\[(\d{2}:\d{2}:\d{2})\]/)
+  const time = timeMatch ? timeMatch[1] : '--:--:--'
+
+  return { time, level, text: raw }
 }
 
 export function ConsolePreview({ className }: { className?: string }) {
@@ -49,48 +40,90 @@ export function ConsolePreview({ className }: { className?: string }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const shouldAutoScrollRef = useRef(true)
 
-  // Track if user is scrolled near bottom
-  const handleScroll = () => {
+  // Keep track of the last raw text we've seen from the API so we only
+  // append truly new lines.  We use a ref so it persists across polls
+  // without triggering re-renders.
+  const lastSeenLineRef = useRef<string | null>(null)
+  const clearedAtRef = useRef<number>(0) // timestamp of last "clear"
+
+  const handleScroll = useCallback(() => {
     if (!scrollRef.current) return
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
     shouldAutoScrollRef.current = scrollHeight - scrollTop - clientHeight < 60
-  }
+  }, [])
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
         const res = await fetch('/api/server/logs')
         const data = await res.json()
-        if (data.logs && data.logs.length > 0) {
-          setLines(prev => {
-            const existingTextSet = new Set(prev.map(p => p.text))
-            const rawNew = data.logs.filter((raw: string) => !existingTextSet.has(raw))
-            if (rawNew.length === 0) return prev
+        if (!data.logs || data.logs.length === 0) return
 
-            const newParsed = rawNew.map(parseLogLine)
-            const combined = [...prev, ...newParsed]
-            return combined.length > 60 ? combined.slice(combined.length - 60) : combined
-          })
-        }
-      } catch (err) {}
+        const apiLines: string[] = data.logs
+
+        setLines(prev => {
+          // Find the index of the last line we already displayed in the
+          // new API payload.  Everything after that index is new.
+          const lastSeen = lastSeenLineRef.current
+          let startIdx = 0
+
+          if (lastSeen !== null) {
+            // Search from the end for efficiency – the last seen line
+            // is usually near the tail of the 150-line window.
+            const idx = apiLines.lastIndexOf(lastSeen)
+            if (idx !== -1) {
+              startIdx = idx + 1
+            } else {
+              // The previously seen line has scrolled out of the 150-line
+              // window entirely.  That means ALL lines are new relative
+              // to what we had.  Replace everything.
+              startIdx = 0
+            }
+          } else {
+            // First load – show last 40 lines
+            startIdx = Math.max(0, apiLines.length - 40)
+          }
+
+          // Nothing new
+          if (startIdx >= apiLines.length) return prev
+
+          const newRaw = apiLines.slice(startIdx)
+          const newParsed = newRaw.map(parseLogLine)
+
+          // Update the "last seen" marker
+          lastSeenLineRef.current = apiLines[apiLines.length - 1]
+
+          // If the user hit "Clear", only show lines that arrived
+          // after the clear action.
+          if (prev.length === 0 && clearedAtRef.current > 0) {
+            return newParsed.slice(-60)
+          }
+
+          const combined = [...prev, ...newParsed]
+          return combined.length > 60 ? combined.slice(-60) : combined
+        })
+      } catch (_) {}
     }
 
     fetchLogs()
-    const interval = setInterval(fetchLogs, 2000)
+    const interval = setInterval(fetchLogs, 2500)
 
     const handleCustomCommand = (e: CustomEvent) => {
       const msg = e.detail.command
-      const now = new Date().toLocaleTimeString('en-GB', { hour12: false })
-      lineCounter += 1
-      setLines((prev) => {
+      const now = new Date()
+      const hh = String(now.getHours()).padStart(2, '0')
+      const mm = String(now.getMinutes()).padStart(2, '0')
+      const ss = String(now.getSeconds()).padStart(2, '0')
+      const timeStr = `${hh}:${mm}:${ss}`
+
+      setLines(prev => {
         const entry: ConsoleLine = {
-          id: `cmd-${lineCounter}-${Date.now().toString(36)}`,
-          time: now,
+          time: timeStr,
           level: 'INFO',
-          text: `<dashboard> ${msg}`
+          text: `<dashboard> ${msg}`,
         }
         const combined = [...prev, entry]
-        return combined.length > 60 ? combined.slice(combined.length - 60) : combined
+        return combined.length > 60 ? combined.slice(-60) : combined
       })
     }
     window.addEventListener('console-action', handleCustomCommand as EventListener)
@@ -101,7 +134,7 @@ export function ConsolePreview({ className }: { className?: string }) {
     }
   }, [])
 
-  // Auto-scroll instantly without animation jitter/bouncing
+  // Auto-scroll only when already at bottom
   useEffect(() => {
     if (scrollRef.current && shouldAutoScrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -112,17 +145,19 @@ export function ConsolePreview({ className }: { className?: string }) {
     e.preventDefault()
     if (!command.trim() || isSending) return
 
-    const now = new Date().toLocaleTimeString('en-GB', { hour12: false })
-    lineCounter += 1
+    const now = new Date()
+    const hh = String(now.getHours()).padStart(2, '0')
+    const mm = String(now.getMinutes()).padStart(2, '0')
+    const ss = String(now.getSeconds()).padStart(2, '0')
+    const timeStr = `${hh}:${mm}:${ss}`
     const userCmd = command.trim()
-    
-    setLines((prev) => [
+
+    setLines(prev => [
       ...prev,
-      { 
-        id: `user-${lineCounter}-${Date.now().toString(36)}`, 
-        time: now, 
-        level: 'INFO', 
-        text: `<console> issued command: /${userCmd}` 
+      {
+        time: timeStr,
+        level: 'INFO',
+        text: `<console> issued command: /${userCmd}`,
       },
     ])
 
@@ -133,7 +168,7 @@ export function ConsolePreview({ className }: { className?: string }) {
       await fetch('/api/server/rcon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: userCmd })
+        body: JSON.stringify({ command: userCmd }),
       })
     } finally {
       setIsSending(false)
@@ -142,10 +177,17 @@ export function ConsolePreview({ className }: { className?: string }) {
 
   const clearPreview = () => {
     setLines([])
+    clearedAtRef.current = Date.now()
+    lastSeenLineRef.current = null
   }
 
   return (
-    <div className={cn("glass flex flex-col rounded-3xl overflow-hidden max-h-[420px] border-primary/20 shadow-[0_0_40px_-10px_rgba(98,6,191,0.2)] transition-all duration-300 hover:border-primary/40", className)}>
+    <div
+      className={cn(
+        'glass flex flex-col rounded-3xl overflow-hidden max-h-[420px] border-primary/20 shadow-[0_0_40px_-10px_rgba(98,6,191,0.2)] transition-all duration-300 hover:border-primary/40',
+        className,
+      )}
+    >
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-border/50 bg-black/25 px-5 py-3.5 backdrop-blur-md">
         <div className="flex size-8 items-center justify-center rounded-lg bg-primary/20 text-end-stone shadow-[0_0_15px_rgba(98,6,191,0.3)]">
@@ -181,21 +223,26 @@ export function ConsolePreview({ className }: { className?: string }) {
         </div>
       </div>
 
-      {/* Terminal Viewport - 100% flicker-free */}
+      {/* Terminal Viewport */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 font-mono text-[12px] leading-relaxed min-h-[16rem] bg-black/45 custom-scrollbar"
       >
-        {lines.map((line) => (
+        {lines.map((line, i) => (
           <div
-            key={line.id}
+            key={`${i}-${line.time}`}
             className="flex gap-3 py-0.5 hover:bg-white/[0.03] rounded px-1.5 -mx-1.5 transition-colors"
           >
             <span className="shrink-0 text-muted-foreground/60 select-none">
               [{line.time}]
             </span>
-            <span className={cn('shrink-0 font-bold tracking-wider', levelColor(line.level))}>
+            <span
+              className={cn(
+                'shrink-0 font-bold tracking-wider',
+                levelColor(line.level),
+              )}
+            >
               {line.level}
             </span>
             <span className="text-foreground/90 break-all select-text">
@@ -213,7 +260,7 @@ export function ConsolePreview({ className }: { className?: string }) {
         )}
       </div>
 
-      {/* Command Input Form */}
+      {/* Command Input */}
       <form
         onSubmit={sendCommand}
         className="flex items-center gap-2 border-t border-border/50 bg-black/30 p-2.5 relative group"
