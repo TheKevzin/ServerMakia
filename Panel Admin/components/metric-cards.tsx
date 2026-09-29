@@ -82,7 +82,7 @@ export function MetricCards() {
             const m = Math.floor((uptimeSecs % 3600) / 60)
             setUptime(`${d}d ${h}h ${m}m`)
           } else if (!data.isRunning) {
-            setUptime('Apagado')
+            setUptime('Offline')
           }
 
           const cpuVal = parseFloat(data.metrics.cpu) || 0
@@ -218,7 +218,7 @@ export function MetricCards() {
                 isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'
               )}
             />
-            {isRunning ? 'Activo' : 'Apagado'}
+            {isRunning ? 'Active' : 'Offline'}
           </span>
         </div>
 
@@ -227,7 +227,7 @@ export function MetricCards() {
             {uptime}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {isRunning ? 'Tiempo activo del servidor' : 'Servidor detenido'}
+            {isRunning ? 'Server runtime' : 'Server stopped'}
           </p>
         </div>
 

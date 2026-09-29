@@ -25,18 +25,18 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
-    group: 'Gestión',
+    group: 'Management',
     items: [
-      { id: 'console', label: 'Consola', icon: 'console' },
-      { id: 'players', label: 'Jugadores', icon: 'players' },
+      { id: 'console', label: 'Console', icon: 'console' },
+      { id: 'players', label: 'Players', icon: 'players' },
     ],
   },
   {
-    group: 'Servidor',
+    group: 'Server',
     items: [
-      { id: 'files', label: 'Archivos', icon: 'files' },
+      { id: 'files', label: 'Files', icon: 'files' },
       { id: 'backups', label: 'Backups', icon: 'backups' },
-      { id: 'settings', label: 'Ajustes', icon: 'settings' },
+      { id: 'settings', label: 'Settings', icon: 'settings' },
     ],
   },
 ]
@@ -414,7 +414,7 @@ export type Backup = {
 
 export const backups: Backup[] = [
   { id: 'bk1', name: 'world-2026-04-20-1200', size: '482 MB', date: 'Apr 20, 2026 · 12:00', type: 'Auto', status: 'Completed' },
-  { id: 'bk2', name: 'pre-update-snapshot', size: '478 MB', date: 'Apr 19, 2026 · 22:14', type: 'Manual', status: 'Completed', note: 'Antes de actualizar el mod de Mobs' },
+  { id: 'bk2', name: 'pre-update-snapshot', size: '478 MB', date: 'Apr 19, 2026 · 22:14', type: 'Manual', status: 'Completed', note: 'Before updating Mobs mod' },
   { id: 'bk3', name: 'world-2026-04-19-0000', size: '471 MB', date: 'Apr 19, 2026 · 00:00', type: 'Auto', status: 'Completed' },
   { id: 'bk4', name: 'world-2026-04-18-0000', size: '465 MB', date: 'Apr 18, 2026 · 00:00', type: 'Auto', status: 'Completed' },
   { id: 'bk5', name: 'before-end-raid', size: '460 MB', date: 'Apr 17, 2026 · 18:42', type: 'Manual', status: 'Completed' },

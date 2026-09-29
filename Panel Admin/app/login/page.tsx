@@ -23,17 +23,17 @@ export default function LoginPage() {
       })
       
       if (res.ok) {
-        toast.success('Acceso autorizado. Redirigiendo...')
+        toast.success('Access authorized. Redirecting...')
         window.location.href = '/' // Force hard redirect
       } else {
         setIsError(true)
-        toast.error('Credenciales incorrectas')
+        toast.error('Invalid credentials')
         setPassword('')
         setTimeout(() => setIsError(false), 500)
       }
     } catch (err) {
       setIsError(true)
-      toast.error('Error de red o conexión')
+      toast.error('Network or connection error')
       setTimeout(() => setIsError(false), 500)
     } finally {
       setLoading(false)
@@ -63,7 +63,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">ServerMakia</h1>
-            <p className="text-sm text-muted-foreground mt-2">Panel de Control de Servidor</p>
+            <p className="text-sm text-muted-foreground mt-2">Server Control Panel</p>
           </div>
         </div>
 
@@ -73,14 +73,14 @@ export default function LoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Usuario"
+              placeholder="Username"
               className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/5 text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground/50 mb-4"
             />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Contraseña"
+              placeholder="Password"
               autoFocus
               className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/5 text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground/50"
             />
@@ -93,11 +93,11 @@ export default function LoginPage() {
             {loading ? (
               <>
                 <Loader2 className="size-5 animate-spin" />
-                <span>Verificando...</span>
+                <span>Verifying...</span>
               </>
             ) : (
               <>
-                <span>Ingresar al Panel</span>
+                <span>Sign In</span>
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </>
             )}

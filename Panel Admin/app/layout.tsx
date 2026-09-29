@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'ServerMakia — Server Control Panel',
   description:
-    'Panel de administración y monitoreo para el servidor de Minecraft Fabric 1.21.11 ServerMakia.',
+    'Administration and monitoring dashboard for ServerMakia Minecraft Fabric 1.21.11 server.',
   generator: 'v0.app',
   icons: {
     icon: [

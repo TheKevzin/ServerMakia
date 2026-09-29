@@ -267,7 +267,7 @@ export function SettingsView() {
           <div className="mb-6 rounded-xl border border-sky-500/30 bg-sky-500/10 p-4 animate-in fade-in">
             <p className="text-sm font-semibold text-sky-400 flex items-center gap-2">
               <AlertTriangle className="size-4" /> 
-              Nota: El servidor está en línea. Los cambios de configuración se aplicarán en el próximo reinicio.
+              Note: The server is online. Configuration changes will take effect on next restart.
             </p>
           </div>
         )}

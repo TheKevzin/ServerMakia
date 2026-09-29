@@ -47,7 +47,7 @@ export function Sidebar({
           <p className="font-heading text-sm font-semibold leading-tight text-foreground">
             ServerMakia
           </p>
-          <p className="text-xs text-muted-foreground">Panel Admin</p>
+          <p className="text-xs text-muted-foreground">Admin Panel</p>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export function Sidebar({
             <p className="text-[11px] text-muted-foreground truncate">1.21.11 · Fabric</p>
           </div>
         </div>
-        <button onClick={handleLogout} className="shrink-0 p-1 text-muted-foreground hover:text-rose-400 transition-colors" title="Cerrar sesión">
+        <button onClick={handleLogout} className="shrink-0 p-1 text-muted-foreground hover:text-rose-400 transition-colors" title="Sign out">
           <LogOut className="size-4" />
         </button>
       </div>

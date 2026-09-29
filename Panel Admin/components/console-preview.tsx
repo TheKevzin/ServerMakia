@@ -206,19 +206,19 @@ export function ConsolePreview({ className }: { className?: string }) {
         <div className="ml-auto flex items-center gap-1.5">
           <button
             onClick={clearPreview}
-            title="Limpiar vista previa"
+            title="Clear preview"
             className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors"
           >
             <Trash2 className="size-3" />
-            <span className="hidden sm:inline">Limpiar</span>
+            <span className="hidden sm:inline">Clear</span>
           </button>
           <Link
             href="/console"
-            title="Abrir consola completa"
+            title="Open full console"
             className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] text-end-stone bg-primary/20 hover:bg-primary/30 transition-colors"
           >
             <ExternalLink className="size-3" />
-            <span className="hidden sm:inline">Consola Completa</span>
+            <span className="hidden sm:inline">Full Console</span>
           </Link>
         </div>
       </div>
@@ -254,7 +254,7 @@ export function ConsolePreview({ className }: { className?: string }) {
         {lines.length === 0 && (
           <div className="flex h-full min-h-[14rem] items-center justify-center">
             <p className="font-mono text-xs text-muted-foreground/50 animate-pulse">
-              Esperando registros del servidor...
+              Waiting for server logs...
             </p>
           </div>
         )}
@@ -270,7 +270,7 @@ export function ConsolePreview({ className }: { className?: string }) {
         <input
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          placeholder="Ej: say ¡Bienvenidos al server! o time set day..."
+          placeholder="e.g. say Welcome to the server! or time set day..."
           disabled={isSending}
           className="flex-1 bg-transparent font-mono text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none relative z-10 disabled:opacity-50"
         />
@@ -279,7 +279,7 @@ export function ConsolePreview({ className }: { className?: string }) {
           disabled={isSending || !command.trim()}
           className="relative z-10 rounded-xl bg-primary/25 px-3 py-1.5 text-xs font-bold text-end-stone transition-all hover:bg-primary/40 hover:shadow-[0_0_15px_rgba(98,6,191,0.4)] active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
         >
-          {isSending ? 'Enviando...' : 'Enviar'}
+          {isSending ? 'Sending...' : 'Send'}
         </button>
       </form>
     </div>

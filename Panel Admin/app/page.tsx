@@ -12,12 +12,12 @@ import { SettingsView } from '@/components/views/settings-view'
 import { navItems } from '@/lib/data'
 
 const subtitles: Record<string, string> = {
-  dashboard: 'Resumen en tiempo real del estado de tu servidor y recursos',
-  console: 'Registro de logs en vivo y ejecución de comandos RCON',
-  players: 'Monitoreo de jugadores activos y gestión de permisos',
-  files: 'Explorador y editor de archivos de configuración del servidor',
-  backups: 'Crear, restaurar y sincronizar copias con Google Drive',
-  settings: 'Configuración de reglas del juego, memoria y propiedades',
+  dashboard: 'Real-time overview of your server status and system resources',
+  console: 'Live log stream and RCON command execution',
+  players: 'Active player monitoring and permission management',
+  files: 'Server configuration file explorer and editor',
+  backups: 'Create, restore, and synchronize backups with Google Drive',
+  settings: 'Game rules, memory allocation, and server properties',
 }
 
 export default function Page() {

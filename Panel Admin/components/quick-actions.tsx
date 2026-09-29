@@ -49,13 +49,13 @@ export function QuickActions({ role }: { role?: string | null }) {
     setActionLoading(actionId)
     try {
       if (actionId === 'start') {
-        logAction('Iniciando servidor Minecraft...')
+        logAction('Starting Minecraft server...')
         await fetch('/api/server/start', { method: 'POST' })
       } else if (actionId === 'stop') {
-        logAction('Deteniendo servidor Minecraft...')
+        logAction('Stopping Minecraft server...')
         await fetch('/api/server/stop', { method: 'POST' })
       } else if (actionId === 'restart') {
-        logAction('Reiniciando servidor...')
+        logAction('Restarting server...')
         await fetch('/api/server/stop', { method: 'POST' })
         setTimeout(async () => {
           await fetch('/api/server/start', { method: 'POST' })
@@ -119,7 +119,7 @@ export function QuickActions({ role }: { role?: string | null }) {
                 >
                   <div className="flex flex-1 items-center gap-3">
                     <a.icon className={cn("size-4", isLoading && "animate-spin")} />
-                    <span>{isLoading ? 'Ejecutando...' : a.label}</span>
+                    <span>{isLoading ? 'Executing...' : a.label}</span>
                   </div>
                 </button>
               )

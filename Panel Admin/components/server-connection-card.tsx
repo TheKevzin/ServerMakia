@@ -71,11 +71,11 @@ export function ServerConnectionCard() {
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-end-stone">
-                Dirección Pública de Conexión (Minecraft)
+                Public Server Address (Minecraft)
               </span>
               <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
                 <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
-                {isOnline ? 'Playit Activo' : 'Offline'}
+                {isOnline ? 'Tunnel Active' : 'Offline'}
               </span>
             </div>
 
@@ -91,12 +91,12 @@ export function ServerConnectionCard() {
                 {copiedKey === 'domain' ? (
                   <>
                     <Check className="size-3.5 text-emerald-400" />
-                    <span className="text-emerald-300">¡Copiado!</span>
+                    <span className="text-emerald-300">Copied!</span>
                   </>
                 ) : (
                   <>
                     <Copy className="size-3.5" />
-                    <span>Copiar IP</span>
+                    <span>Copy IP</span>
                   </>
                 )}
               </button>
@@ -110,12 +110,12 @@ export function ServerConnectionCard() {
           <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-black/30 px-3 py-1.5">
             <Layers className="size-3.5 text-muted-foreground" />
             <div className="flex flex-col">
-              <span className="text-[10px] font-medium text-muted-foreground uppercase">IP Numérica</span>
+              <span className="text-[10px] font-medium text-muted-foreground uppercase">Numeric IP</span>
               <span className="font-mono text-xs text-foreground/90">{tunnel.directIp}</span>
             </div>
             <button
               onClick={() => copyToClipboard(tunnel.directIp, 'direct')}
-              title="Copiar IP directa"
+              title="Copy direct IP"
               className="ml-1 rounded-lg p-1 text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors"
             >
               {copiedKey === 'direct' ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
@@ -126,12 +126,12 @@ export function ServerConnectionCard() {
           <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-black/30 px-3 py-1.5">
             <Wifi className="size-3.5 text-muted-foreground" />
             <div className="flex flex-col">
-              <span className="text-[10px] font-medium text-muted-foreground uppercase">Red Local (Casa)</span>
+              <span className="text-[10px] font-medium text-muted-foreground uppercase">Local LAN</span>
               <span className="font-mono text-xs text-foreground/90">{tunnel.local}</span>
             </div>
             <button
               onClick={() => copyToClipboard(tunnel.local, 'local')}
-              title="Copiar IP local"
+              title="Copy local IP"
               className="ml-1 rounded-lg p-1 text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors"
             >
               {copiedKey === 'local' ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}

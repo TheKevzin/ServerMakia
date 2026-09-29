@@ -155,7 +155,7 @@ export function BackupsView() {
 
   const handleRestoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (restoreConfirm !== 'RESTAURAR' || !backupToRestore) return
+    if (restoreConfirm !== 'RESTORE' || !backupToRestore) return
     setRestoring(true)
 
     try {
@@ -463,12 +463,12 @@ export function BackupsView() {
 
               {/* Confirm Text */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-foreground">Type <strong className="text-rose-500">RESTAURAR</strong> to confirm</label>
+                <label className="text-sm text-foreground">Type <strong className="text-rose-500">RESTORE</strong> to confirm</label>
                 <input 
                   type="text" 
                   value={restoreConfirm}
                   onChange={(e) => setRestoreConfirm(e.target.value)}
-                  placeholder="RESTAURAR"
+                  placeholder="RESTORE"
                   className="rounded-xl border border-destructive/50 bg-black/40 px-4 py-2 text-sm text-rose-400 outline-none focus:border-rose-500 transition-colors"
                 />
               </div>
@@ -479,7 +479,7 @@ export function BackupsView() {
                 </button>
                 <button 
                   type="submit" 
-                  disabled={restoreConfirm !== 'RESTAURAR' || restoring}
+                  disabled={restoreConfirm !== 'RESTORE' || restoring}
                   className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-destructive py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:hover:opacity-40"
                 >
                   {restoring ? <Loader2 className="size-4 animate-spin" /> : <RotateCcw className="size-4" />}
