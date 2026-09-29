@@ -49,20 +49,34 @@ export async function GET() {
       }
     } catch (e) {}
 
+    const GAMERULES_FILE = path.join(SERVER_DIR, '.gamerules.json');
     let keepInventory = false;
     let mobGriefing = true;
-    
+
+    try {
+      if (fs.existsSync(GAMERULES_FILE)) {
+        const cached = JSON.parse(fs.readFileSync(GAMERULES_FILE, 'utf8'));
+        if (typeof cached.keepInventory === 'boolean') keepInventory = cached.keepInventory;
+        if (typeof cached.mobGriefing === 'boolean') mobGriefing = cached.mobGriefing;
+      }
+    } catch (e) {}
+
     const isOnline = await ServerManager.isRunning();
     if (isOnline) {
       try {
         const kiRes = await ServerManager.sendCommand('gamerule keepInventory');
         if (kiRes.success && typeof kiRes.response === 'string') {
-          keepInventory = kiRes.response.includes('true');
+          if (kiRes.response.toLowerCase().includes('true')) keepInventory = true;
+          else if (kiRes.response.toLowerCase().includes('false')) keepInventory = false;
         }
         const mgRes = await ServerManager.sendCommand('gamerule mobGriefing');
         if (mgRes.success && typeof mgRes.response === 'string') {
-          mobGriefing = mgRes.response.includes('true');
+          if (mgRes.response.toLowerCase().includes('true')) mobGriefing = true;
+          else if (mgRes.response.toLowerCase().includes('false')) mobGriefing = false;
         }
+        try {
+          fs.writeFileSync(GAMERULES_FILE, JSON.stringify({ keepInventory, mobGriefing }), 'utf8');
+        } catch (e) {}
       } catch (e) {}
     }
 
@@ -71,16 +85,16 @@ export async function GET() {
         whitelist: props['white-list'] === 'true',
         cracked: props['online-mode'] === 'false',
         flight: props['allow-flight'] === 'true',
-        secureprofile: props['enforce-secure-profile'] === 'true',
-        pvp: props['pvp'] === 'true',
+        secureprofile: props['enforce-secure-profile'] !== 'false',
+        pvp: props['pvp'] !== 'false',
         hardcore: props['hardcore'] === 'true',
         keepinventory: keepInventory,
         mobgriefing: mobGriefing,
         commandblocks: props['enable-command-block'] === 'true',
-        nether: props['allow-nether'] === 'true',
-        mobs: props['spawn-monsters'] === 'true',
-        animals: props['spawn-animals'] === 'true',
-        npcs: props['spawn-npcs'] === 'true',
+        nether: props['allow-nether'] !== 'false',
+        mobs: props['spawn-monsters'] !== 'false',
+        animals: props['spawn-animals'] !== 'false',
+        npcs: props['spawn-npcs'] !== 'false',
       },
       maxPlayers: props['max-players'] || '20',
       serverPort: props['server-port'] || '25565',
@@ -159,6 +173,14 @@ export async function POST(req: Request) {
     } catch (e) {
       console.error('Failed to update start.sh', e);
     }
+
+    const GAMERULES_FILE = path.join(SERVER_DIR, '.gamerules.json');
+    try {
+      fs.writeFileSync(GAMERULES_FILE, JSON.stringify({
+        keepInventory: !!state.toggles.keepinventory,
+        mobGriefing: !!state.toggles.mobgriefing,
+      }), 'utf8');
+    } catch (e) {}
 
     const isOnline = await ServerManager.isRunning();
     if (isOnline) {

@@ -279,7 +279,7 @@ export const settingGroups: SettingGroup[] = [
   {
     group: 'Gameplay',
     items: [
-      { id: 'pvp', label: 'PVP', description: 'Allow player versus player combat', enabled: false },
+      { id: 'pvp', label: 'PVP', description: 'Allow player versus player combat', enabled: true },
       { id: 'hardcore', label: 'Hardcore Mode', description: 'Players cannot respawn after dying', enabled: false },
       { id: 'keepinventory', label: 'Keep Inventory', description: 'Players keep items upon death', enabled: false },
       { id: 'mobgriefing', label: 'Mob Griefing', description: 'Creepers and Endermen can destroy blocks', enabled: true },

@@ -14,7 +14,7 @@ export async function GET() {
     
     const props = fs.readFileSync(PROPS_PATH, 'utf8');
     const whitelist = props.match(/white-list=(true|false)/)?.[1] === 'true';
-    const pvp = props.match(/pvp=(true|false)/)?.[1] === 'true';
+    const pvp = props.match(/pvp=(true|false)/)?.[1] !== 'false';
     const cracked = props.match(/online-mode=(true|false)/)?.[1] === 'false';
 
     return NextResponse.json({ whitelist, pvp, cracked });
@@ -33,13 +33,22 @@ export async function POST(req: Request) {
 
     let props = fs.readFileSync(PROPS_PATH, 'utf8');
 
+    const updateProp = (key: string, val: string | boolean) => {
+      const regex = new RegExp('^(\\s*)' + key + '\\s*=.*$', 'm');
+      if (regex.test(props)) {
+        props = props.replace(regex, '$1' + key + '=' + val);
+      } else {
+        props += '\n' + key + '=' + val;
+      }
+    };
+
     if (id === 'whitelist') {
-      props = props.replace(/white-list=(true|false)/, `white-list=${enabled}`);
+      updateProp('white-list', enabled);
       ServerManager.sendCommand(`whitelist ${enabled ? 'on' : 'off'}`);
     } else if (id === 'pvp') {
-      props = props.replace(/pvp=(true|false)/, `pvp=${enabled}`);
+      updateProp('pvp', enabled);
     } else if (id === 'cracked') {
-      props = props.replace(/online-mode=(true|false)/, `online-mode=${!enabled}`);
+      updateProp('online-mode', !enabled);
     }
 
     fs.writeFileSync(PROPS_PATH, props);
