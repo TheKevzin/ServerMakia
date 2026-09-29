@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import { settingGroups } from '@/lib/data'
 import { useState, useEffect } from 'react'
-import { Save, RotateCcw, Trash2, Settings, Globe, Cpu, Link2, AlertTriangle, X, Loader2, Send } from 'lucide-react'
+import { Save, RotateCcw, Trash2, Settings, Globe, Cpu, Link2, AlertTriangle, X, Loader2, Send, ChevronDown } from 'lucide-react'
 import { toast } from '@/lib/toast'
 
 function Toggle({
@@ -240,7 +240,7 @@ export function SettingsView() {
       {/* Sidebar Tabs */}
       <div className="flex flex-col gap-2 lg:w-64 shrink-0">
         <h2 className="font-heading text-lg font-bold text-foreground mb-2 px-2">Settings</h2>
-        <div className="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0">
+        <div className="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0 custom-scrollbar">
           {tabs.map(t => (
             <button
               key={t.id}
@@ -311,30 +311,36 @@ export function SettingsView() {
 
               <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-end-stone/90">Difficulty</span>
-                <select
-                  value={state.difficulty}
-                  onChange={(e) => updateState('difficulty', e.target.value)}
-                  className="rounded-xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="peaceful">Peaceful</option>
-                  <option value="easy">Easy</option>
-                  <option value="normal">Normal</option>
-                  <option value="hard">Hard</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={state.difficulty}
+                    onChange={(e) => updateState('difficulty', e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-[#140e36]/90 px-4 py-3 pr-10 text-sm text-[#ece9ff] focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="peaceful" className="bg-[#140e36] text-[#ece9ff]">Peaceful</option>
+                    <option value="easy" className="bg-[#140e36] text-[#ece9ff]">Easy</option>
+                    <option value="normal" className="bg-[#140e36] text-[#ece9ff]">Normal</option>
+                    <option value="hard" className="bg-[#140e36] text-[#ece9ff]">Hard</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                </div>
               </label>
 
               <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-end-stone/90">Default Gamemode</span>
-                <select
-                  value={state.gamemode}
-                  onChange={(e) => updateState('gamemode', e.target.value)}
-                  className="rounded-xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="survival">Survival</option>
-                  <option value="creative">Creative</option>
-                  <option value="adventure">Adventure</option>
-                  <option value="spectator">Spectator</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={state.gamemode}
+                    onChange={(e) => updateState('gamemode', e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-[#140e36]/90 px-4 py-3 pr-10 text-sm text-[#ece9ff] focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="survival" className="bg-[#140e36] text-[#ece9ff]">Survival</option>
+                    <option value="creative" className="bg-[#140e36] text-[#ece9ff]">Creative</option>
+                    <option value="adventure" className="bg-[#140e36] text-[#ece9ff]">Adventure</option>
+                    <option value="spectator" className="bg-[#140e36] text-[#ece9ff]">Spectator</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                </div>
               </label>
 
               <label className="flex flex-col gap-2">
@@ -398,15 +404,18 @@ export function SettingsView() {
             <div className="grid gap-6 sm:grid-cols-2">
               <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-end-stone/90">Java Version</span>
-                <select
-                  value={state.javaVer}
-                  onChange={(e) => updateState('javaVer', e.target.value)}
-                  className="rounded-xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="17">Java 17 (LTS)</option>
-                  <option value="21">Java 21 (LTS) - Recommended</option>
-                  <option value="22">Java 22</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={state.javaVer}
+                    onChange={(e) => updateState('javaVer', e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-[#140e36]/90 px-4 py-3 pr-10 text-sm text-[#ece9ff] focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="17" className="bg-[#140e36] text-[#ece9ff]">Java 17 (LTS)</option>
+                    <option value="21" className="bg-[#140e36] text-[#ece9ff]">Java 21 (LTS) - Recommended</option>
+                    <option value="22" className="bg-[#140e36] text-[#ece9ff]">Java 22</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                </div>
               </label>
               
               <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-border bg-white/5 mt-[28px]">
@@ -419,32 +428,38 @@ export function SettingsView() {
 
               <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-end-stone/90">Min RAM (Xms)</span>
-                <select
-                  value={state.ramMin}
-                  onChange={(e) => updateState('ramMin', e.target.value)}
-                  className="rounded-xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="2G">2 GB</option>
-                  <option value="4G">4 GB</option>
-                  <option value="6G">6 GB</option>
-                  <option value="8G">8 GB</option>
-                  <option value="10G">10 GB</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={state.ramMin}
+                    onChange={(e) => updateState('ramMin', e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-[#140e36]/90 px-4 py-3 pr-10 text-sm text-[#ece9ff] focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="2G" className="bg-[#140e36] text-[#ece9ff]">2 GB</option>
+                    <option value="4G" className="bg-[#140e36] text-[#ece9ff]">4 GB</option>
+                    <option value="6G" className="bg-[#140e36] text-[#ece9ff]">6 GB</option>
+                    <option value="8G" className="bg-[#140e36] text-[#ece9ff]">8 GB</option>
+                    <option value="10G" className="bg-[#140e36] text-[#ece9ff]">10 GB</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                </div>
               </label>
 
               <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-end-stone/90">Max RAM (Xmx)</span>
-                <select
-                  value={state.ramMax}
-                  onChange={(e) => updateState('ramMax', e.target.value)}
-                  className="rounded-xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="4G">4 GB</option>
-                  <option value="6G">6 GB</option>
-                  <option value="8G">8 GB</option>
-                  <option value="10G">10 GB</option>
-                  <option value="12G">12 GB</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={state.ramMax}
+                    onChange={(e) => updateState('ramMax', e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-[#140e36]/90 px-4 py-3 pr-10 text-sm text-[#ece9ff] focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="4G" className="bg-[#140e36] text-[#ece9ff]">4 GB</option>
+                    <option value="6G" className="bg-[#140e36] text-[#ece9ff]">6 GB</option>
+                    <option value="8G" className="bg-[#140e36] text-[#ece9ff]">8 GB</option>
+                    <option value="10G" className="bg-[#140e36] text-[#ece9ff]">10 GB</option>
+                    <option value="12G" className="bg-[#140e36] text-[#ece9ff]">12 GB</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                </div>
               </label>
             </div>
             

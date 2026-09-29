@@ -103,7 +103,7 @@ export function PlayerProfileModal({
       onClick={onClose}
     >
       <div
-        className="glass-strong relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border sm:rounded-3xl"
+        className="glass-strong relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-y-auto custom-scrollbar rounded-t-3xl border sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

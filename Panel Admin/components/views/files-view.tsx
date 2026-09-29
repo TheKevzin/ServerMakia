@@ -349,7 +349,7 @@ export function FilesView() {
               Files
             </h2>
           </div>
-          <ul className="flex flex-col p-2 overflow-y-auto">
+          <ul className="flex flex-col p-2 overflow-y-auto custom-scrollbar">
             {isLoading ? (
               <li className="p-4 text-center text-sm text-muted-foreground animate-pulse">Loading files...</li>
             ) : (

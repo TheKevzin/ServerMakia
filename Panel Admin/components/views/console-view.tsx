@@ -49,7 +49,7 @@ function ToolbarDropdown({ icon: Icon, label, options, send }: { icon: any, labe
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-40 rounded-xl border border-border bg-[#1a0f14]/95 p-1.5 shadow-xl backdrop-blur-md z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-full left-0 mt-1.5 w-40 rounded-xl border border-primary/30 bg-[#140e36]/95 p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.6)] backdrop-blur-xl z-50 animate-in fade-in slide-in-from-top-2">
           {options.map(opt => (
             <button
               key={opt.cmd}
@@ -375,7 +375,7 @@ export function ConsoleView({ role }: { role?: string | null }) {
             </span>
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 font-mono text-xs leading-relaxed">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 font-mono text-xs leading-relaxed custom-scrollbar">
             {filtered.map((line, i) => (
               <div key={i} className="flex gap-3 py-1 hover:bg-white/[0.02] rounded px-2 -mx-2 transition-colors">
                 <span className="shrink-0 text-muted-foreground">{line.time}</span>

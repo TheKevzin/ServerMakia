@@ -37,7 +37,7 @@ export function Sidebar({
   }
 
   return (
-    <aside className="glass-strong sticky top-0 z-20 flex h-auto shrink-0 flex-row items-center gap-2 rounded-none border-b px-3 py-2 lg:top-4 lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] lg:w-60 lg:flex-col lg:items-stretch lg:gap-1 lg:overflow-y-auto lg:rounded-3xl lg:border lg:px-3 lg:py-6">
+    <aside className="glass-strong sticky top-0 z-20 flex h-auto shrink-0 flex-row items-center gap-2 rounded-none border-b px-3 py-2 lg:top-4 lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] lg:w-60 lg:flex-col lg:items-stretch lg:gap-1 lg:overflow-y-auto custom-scrollbar lg:rounded-3xl lg:border lg:px-3 lg:py-6">
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 lg:mb-6">
         <div className="neon-ring flex size-10 items-center justify-center rounded-xl bg-primary/30">

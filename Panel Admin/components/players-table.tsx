@@ -105,7 +105,7 @@ export function PlayersTable({ className, role }: { className?: string; role?: s
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-[16rem] max-h-[22rem]">
+      <div className="flex-1 overflow-y-auto min-h-[16rem] max-h-[22rem] custom-scrollbar">
         <ul className="divide-y divide-border">
           {filtered.map((p) => (
             <li

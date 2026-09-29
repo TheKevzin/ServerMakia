@@ -221,7 +221,7 @@ export function PlayersView({ role }: { role?: string | null }) {
                         )}>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#0b0c10] border-border text-foreground">
+                        <SelectContent>
                           <SelectItem value="Member" className="focus:bg-white/10 cursor-pointer">MEMBER</SelectItem>
                           <SelectItem value="Mod" className="focus:bg-[#b06bf0]/20 text-[#d8b8f7] cursor-pointer">MOD</SelectItem>
                           <SelectItem value="Admin" className="focus:bg-primary/20 text-end-stone cursor-pointer">ADMIN</SelectItem>

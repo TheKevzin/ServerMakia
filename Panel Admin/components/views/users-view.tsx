@@ -186,7 +186,7 @@ export function UsersView() {
             <SelectTrigger className="rounded-xl border border-white/10 bg-black/40 h-10 px-4 py-2 text-sm text-foreground focus:border-primary/50 focus:outline-none">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
-            <SelectContent className="bg-[#0b0c10] border-border text-foreground">
+            <SelectContent>
               <SelectItem value="VIEWER" className="focus:bg-white/10 cursor-pointer">Viewer (Read Only)</SelectItem>
               <SelectItem value="MODERATOR" className="focus:bg-amber-500/20 text-amber-400 cursor-pointer">Moderator (Console & Players)</SelectItem>
               <SelectItem value="ADMIN" className="focus:bg-primary/20 text-primary cursor-pointer">Admin (Full Access)</SelectItem>
@@ -244,7 +244,7 @@ export function UsersView() {
                     }`}>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0b0c10] border-border text-foreground">
+                    <SelectContent>
                       <SelectItem value="VIEWER" className="focus:bg-white/10 cursor-pointer">VIEWER</SelectItem>
                       <SelectItem value="MODERATOR" className="focus:bg-amber-500/20 text-amber-400 cursor-pointer">MODERATOR</SelectItem>
                       <SelectItem value="ADMIN" className="focus:bg-primary/20 text-primary cursor-pointer">ADMIN</SelectItem>
