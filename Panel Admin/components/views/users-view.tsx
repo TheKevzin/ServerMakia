@@ -182,7 +182,7 @@ export function UsersView() {
             className="rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm focus:border-primary/50 focus:outline-none"
             required
           />
-          <Select value={newRole} onValueChange={setNewRole}>
+          <Select value={newRole} onValueChange={(val) => { if (val) setNewRole(val) }}>
             <SelectTrigger className="rounded-xl border border-white/10 bg-black/40 h-10 px-4 py-2 text-sm text-foreground focus:border-primary/50 focus:outline-none">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
@@ -236,7 +236,7 @@ export function UsersView() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <Select value={user.role} onValueChange={(val: string) => handleChangeRole(user.id, val)}>
+                  <Select value={user.role} onValueChange={(val) => { if (val) handleChangeRole(user.id, val) }}>
                     <SelectTrigger className={`inline-flex h-auto w-[120px] items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium border focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer ${
                       user.role === 'ADMIN' ? 'bg-primary/20 text-primary border-primary/30' :
                       user.role === 'MODERATOR' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :

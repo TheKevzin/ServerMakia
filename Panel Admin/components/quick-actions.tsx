@@ -12,13 +12,15 @@ import {
   MoonStar,
   CloudSun,
   CloudRain,
-  CloudLightning
+  CloudLightning,
+  Sparkles,
+  Loader2,
 } from 'lucide-react'
 
 const serverActions = [
-  { id: 'start', label: 'Start', icon: Play, tone: 'emerald' },
-  { id: 'restart', label: 'Restart', icon: RotateCcw, tone: 'neon' },
-  { id: 'stop', label: 'Stop', icon: Square, tone: 'destructive' },
+  { id: 'start', label: 'Start Server', icon: Play, tone: 'emerald' },
+  { id: 'restart', label: 'Restart Server', icon: RotateCcw, tone: 'neon' },
+  { id: 'stop', label: 'Stop Server', icon: Square, tone: 'destructive' },
 ] as const
 
 const timeActions = [
@@ -29,9 +31,9 @@ const timeActions = [
 ] as const
 
 const weatherActions = [
-  { id: 'clear', label: 'Clear', icon: CloudSun },
+  { id: 'clear', label: 'Clear Sky', icon: CloudSun },
   { id: 'rain', label: 'Rain', icon: CloudRain },
-  { id: 'storm', label: 'Storm', icon: CloudLightning },
+  { id: 'storm', label: 'Thunderstorm', icon: CloudLightning },
 ] as const
 
 export function QuickActions({ role }: { role?: string | null }) {
@@ -91,14 +93,14 @@ export function QuickActions({ role }: { role?: string | null }) {
     <div className={cn("glass grid gap-6 rounded-3xl p-5 animate-enter", role === 'MODERATOR' ? 'lg:grid-cols-2' : 'lg:grid-cols-3')}>
       {/* Power Controls */}
       {role !== 'MODERATOR' && (
-        <div>
+        <div className="flex flex-col">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-heading text-sm font-semibold text-foreground">
+            <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground">
               Power Controls
             </h2>
-            <span className="text-xs text-muted-foreground">Server state</span>
+            <span className="text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">Control</span>
           </div>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-2.5">
             {serverActions.map((a) => {
               const isLoading = actionLoading === a.id
               return (
@@ -107,20 +109,22 @@ export function QuickActions({ role }: { role?: string | null }) {
                   disabled={!!actionLoading}
                   onClick={() => handleServerAction(a.id)}
                   className={cn(
-                    'tactile-btn flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed',
+                    'tactile-btn group relative flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition-[border-color,background-color,box-shadow,transform] duration-150 disabled:cursor-not-allowed disabled:opacity-50',
                     a.tone === 'destructive'
-                      ? 'border-destructive/30 bg-destructive/10 text-rose-300 hover:bg-destructive/20'
+                      ? 'border-rose-500/25 bg-rose-500/10 text-rose-300 hover:border-rose-500/50 hover:bg-rose-500/20 hover:shadow-[0_0_16px_rgba(244,63,94,0.18)]'
                       : a.tone === 'emerald'
-                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20'
-                        : a.tone === 'neon'
-                          ? 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-                          : 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/20',
+                        ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-500/20 hover:shadow-[0_0_16px_rgba(16,185,129,0.18)]'
+                        : 'border-amber-500/25 bg-amber-500/10 text-amber-300 hover:border-amber-500/50 hover:bg-amber-500/20 hover:shadow-[0_0_16px_rgba(245,158,11,0.18)]'
                   )}
                 >
-                  <div className="flex flex-1 items-center gap-3">
-                    <a.icon className={cn("size-4", isLoading && "animate-spin")} />
-                    <span>{isLoading ? 'Executing...' : a.label}</span>
+                  <div className="flex size-7 items-center justify-center rounded-xl bg-black/30 shrink-0">
+                    {isLoading ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <a.icon className="size-4 group-hover:scale-110 transition-transform duration-150" />
+                    )}
                   </div>
+                  <span className="font-semibold">{isLoading ? 'Executing...' : a.label}</span>
                 </button>
               )
             })}
@@ -129,14 +133,14 @@ export function QuickActions({ role }: { role?: string | null }) {
       )}
 
       {/* Time Control */}
-      <div>
+      <div className="flex flex-col">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-heading text-sm font-semibold text-foreground">
+          <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground">
             Time Control
           </h2>
-          <span className="text-xs text-muted-foreground">Overworld</span>
+          <span className="text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">Overworld</span>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5">
           {timeActions.map((a) => {
             const isActive = time === a.id
             return (
@@ -145,14 +149,17 @@ export function QuickActions({ role }: { role?: string | null }) {
                 onClick={() => setServerTime(a.id)}
                 aria-pressed={isActive ? 'true' : 'false'}
                 className={cn(
-                  'tactile-btn flex flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-4 text-xs font-medium',
+                  'tactile-btn relative flex flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-3.5 text-xs font-medium transition-[border-color,background-color,box-shadow,color] duration-150',
                   isActive
-                    ? 'border-primary/50 bg-primary/25 text-end-stone shadow-[0_0_12px_rgba(98,6,191,0.25)]'
-                    : 'border-border/60 bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/[0.08]',
+                    ? 'border-primary/60 bg-primary/25 text-end-stone shadow-[0_0_16px_rgba(168,85,247,0.3)] ring-1 ring-primary/40'
+                    : 'border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.08] hover:text-foreground hover:border-white/20'
                 )}
               >
-                <a.icon className="size-5" />
-                {a.label}
+                <a.icon className={cn('size-5 transition-transform duration-150', isActive && 'scale-110')} />
+                <span className="tracking-tight">{a.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-1 size-1 rounded-full bg-end-stone shadow-[0_0_6px_currentColor]" />
+                )}
               </button>
             )
           })}
@@ -160,14 +167,14 @@ export function QuickActions({ role }: { role?: string | null }) {
       </div>
 
       {/* Weather Control */}
-      <div>
+      <div className="flex flex-col">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-heading text-sm font-semibold text-foreground">
+          <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground">
             Weather Control
           </h2>
-          <span className="text-xs text-muted-foreground">Overworld</span>
+          <span className="text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">Overworld</span>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           {weatherActions.map((a) => {
             const isActive = weather === a.id
             return (
@@ -176,14 +183,19 @@ export function QuickActions({ role }: { role?: string | null }) {
                 onClick={() => setServerWeather(a.id)}
                 aria-pressed={isActive ? 'true' : 'false'}
                 className={cn(
-                  'tactile-btn flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium',
+                  'tactile-btn relative flex items-center gap-3 rounded-2xl border px-4 py-2.5 text-xs font-medium transition-[border-color,background-color,box-shadow,color] duration-150',
                   isActive
-                    ? 'border-primary/50 bg-primary/25 text-end-stone shadow-[0_0_12px_rgba(98,6,191,0.25)]'
-                    : 'border-border/60 bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/[0.08]',
+                    ? 'border-primary/60 bg-primary/25 text-end-stone shadow-[0_0_16px_rgba(168,85,247,0.3)] ring-1 ring-primary/40'
+                    : 'border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.08] hover:text-foreground hover:border-white/20'
                 )}
               >
-                <a.icon className="size-5" />
-                {a.label}
+                <div className="flex size-7 items-center justify-center rounded-xl bg-black/25 shrink-0">
+                  <a.icon className={cn('size-4 transition-transform duration-150', isActive && 'scale-110 text-end-stone')} />
+                </div>
+                <span className="flex-1 text-left font-medium tracking-tight">{a.label}</span>
+                {isActive && (
+                  <span className="size-1.5 rounded-full bg-end-stone shadow-[0_0_6px_currentColor]" />
+                )}
               </button>
             )
           })}

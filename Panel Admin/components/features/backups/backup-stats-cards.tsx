@@ -15,16 +15,18 @@ type StatsData = {
 export function BackupStatsCards({ stats }: { stats: StatsData }) {
   const summaryStats = [
     {
-      label: 'Total Backups',
+      label: 'Total de Copias',
       value: String(stats.total),
       subtext: 'Copias de seguridad activas',
       icon: DatabaseBackup,
+      delayClass: 'animate-enter-1',
     },
     {
-      label: 'Storage Used',
+      label: 'Espacio de Copias',
       value: stats.storageUsed,
       subtext: stats.diskFree ? `${stats.diskFree} libres en la torre` : 'Espacio de copias',
       icon: HardDrive,
+      delayClass: 'animate-enter-2',
     },
     {
       label: 'Espacio Libre en la Torre',
@@ -32,34 +34,43 @@ export function BackupStatsCards({ stats }: { stats: StatsData }) {
       subtext: stats.diskTotal ? `de ${stats.diskTotal} en disco (${100 - (stats.diskUsedPercent || 0)}% libre)` : 'Disco físico',
       icon: Server,
       progress: stats.diskUsedPercent,
+      delayClass: 'animate-enter-3',
     },
     {
-      label: 'Last Backup',
+      label: 'Última Copia',
       value: stats.lastBackup,
       subtext: 'Hora de Colombia',
       icon: Clock,
+      delayClass: 'animate-enter-4',
     },
   ]
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {summaryStats.map((s) => (
-        <div key={s.label} className="glass flex flex-col justify-between rounded-3xl p-5 gap-3">
+        <div
+          key={s.label}
+          className={cn(
+            'glass flex flex-col justify-between rounded-3xl p-5 gap-3 border border-white/10 shadow-lg',
+            'transition-[transform,border-color,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(168,85,247,0.12)]',
+            s.delayClass
+          )}
+        >
           <div className="flex items-center gap-4">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/25 text-end-stone shrink-0">
+            <div className="flex size-11 items-center justify-center rounded-2xl border border-white/10 bg-primary/20 text-end-stone shrink-0 shadow-sm">
               <s.icon className="size-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-heading text-lg sm:text-xl font-semibold text-foreground neon-text truncate">
+              <p className="font-heading text-lg sm:text-xl font-semibold tracking-tight text-foreground neon-text truncate">
                 {s.value}
               </p>
-              <p className="text-xs text-muted-foreground">{s.label}</p>
+              <p className="text-xs text-muted-foreground/80 tracking-tight">{s.label}</p>
             </div>
           </div>
 
           {s.subtext && (
-            <div className="flex flex-col gap-1.5 pt-1.5 border-t border-white/5">
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="flex flex-col gap-1.5 pt-2 border-t border-white/[0.06]">
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground/85">
                 <span className="truncate">{s.subtext}</span>
                 {s.progress !== undefined && (
                   <span className="font-mono text-xs font-semibold text-foreground shrink-0 ml-1">

@@ -237,18 +237,18 @@ export function PlayerProfileModal({
               onClose()
             }}
             disabled={!isOnline}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-2.5 text-sm font-medium text-rose-300 transition-colors hover:bg-destructive/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="tactile-btn flex flex-1 items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300 transition-[border-color,background-color,transform] duration-150 hover:bg-rose-500/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <LogOut className="size-4" />
-            Kick Player
+            Expulsar (Kick)
           </button>
           <button
             onClick={handleBan}
             disabled={isBanning}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-destructive/50 bg-destructive/20 px-4 py-2.5 text-sm font-medium text-rose-200 transition-colors hover:bg-destructive/30 disabled:opacity-50"
+            className="tactile-btn flex flex-1 items-center justify-center gap-2 rounded-xl border border-rose-500/50 bg-rose-500/20 px-4 py-2.5 text-sm font-medium text-rose-200 transition-[border-color,background-color,transform] duration-150 hover:bg-rose-500/30 active:scale-[0.98] disabled:opacity-50"
           >
             <Ban className="size-4" />
-            {isBanning ? 'Banning...' : 'Ban Player'}
+            {isBanning ? 'Baneando...' : 'Banear Jugador'}
           </button>
         </div>
       </div>

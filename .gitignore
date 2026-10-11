@@ -47,7 +47,7 @@ Server/.fabric/
 /server.properties
 
 # Build artifacts
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Sistema operativo
 .DS_Store

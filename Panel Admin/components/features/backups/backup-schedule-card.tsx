@@ -67,7 +67,7 @@ export function BackupScheduleCard({
           </div>
           {autoBackup && (
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-2">
-              <Select value={frequency} onValueChange={setFrequency}>
+              <Select value={frequency} onValueChange={(val) => { if (val) setFrequency(val) }}>
                 <SelectTrigger title="Backup frequency" className="w-[180px] bg-white/5 border-border text-foreground">
                   <SelectValue placeholder="Frequency" />
                 </SelectTrigger>
@@ -78,7 +78,7 @@ export function BackupScheduleCard({
                 </SelectContent>
               </Select>
               <span>keep last</span>
-              <Select value={retention} onValueChange={setRetention}>
+              <Select value={retention} onValueChange={(val) => { if (val) setRetention(val) }}>
                 <SelectTrigger title="Retention policy" className="w-[120px] bg-white/5 border-border text-foreground">
                   <SelectValue placeholder="Retention" />
                 </SelectTrigger>

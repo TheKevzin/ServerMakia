@@ -110,7 +110,7 @@ export function PlayersView({
         body: JSON.stringify({ command: `deop ${name}` })
       })
     }
-    setPlayers(prev => prev.map(p => p.name === name ? { ...p, role: newRole } : p))
+    refreshPlayers()
   }
 
   const filtered = players.filter((p) =>
@@ -212,7 +212,7 @@ export function PlayersView({
                     </span>
                   ) : (
                     <div className="w-max" onClick={(e) => e.stopPropagation()}>
-                      <Select value={p.role} onValueChange={(val: string) => changeRole(p.name, val as Player['role'])}>
+                      <Select value={p.role} onValueChange={(val) => { if (val) changeRole(p.name, val as Player['role']) }}>
                         <SelectTrigger disabled={!p.isActive} className={cn(
                           'h-auto w-auto inline-flex appearance-none rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50 text-center',
                           roleBadge(p.role, p.isActive)
