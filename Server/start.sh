@@ -42,4 +42,4 @@ echo " Iniciando Servidor Fabric 1.21.11 (Vanilla)"
 echo " RAM: ${RAM_MIN} - ${RAM_MAX} | Java: $($JAVA_BIN -version 2>&1 | head -n1)"
 echo "============================================================"
 
-$JAVA_BIN -Xms${RAM_MIN} -Xmx${RAM_MAX} ${AIKAR_FLAGS} -jar fabric-server-launch.jar nogui
+$JAVA_BIN -Duser.timezone=America/Bogota -Xms${RAM_MIN} -Xmx${RAM_MAX} ${AIKAR_FLAGS} -jar fabric-server-launch.jar nogui
