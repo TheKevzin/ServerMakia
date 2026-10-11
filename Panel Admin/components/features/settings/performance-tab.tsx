@@ -13,12 +13,12 @@ export function PerformanceTab({ state, updateState, toggleStateItem }: Performa
   return (
     <div className="glass rounded-3xl p-6 animate-in fade-in slide-in-from-right-4 transition-opacity">
       <div className="mb-6 border-b border-border pb-4">
-        <h2 className="font-heading text-lg font-semibold text-foreground">Performance & JVM Flags</h2>
-        <p className="text-sm text-muted-foreground">Adjust memory allocation and Java runtime settings</p>
+        <h2 className="font-heading text-lg font-semibold text-foreground">Rendimiento y Parámetros JVM</h2>
+        <p className="text-sm text-muted-foreground">Ajusta la asignación de memoria y parámetros de ejecución de Java</p>
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-end-stone/90">Java Version</span>
+          <span className="text-sm font-semibold text-end-stone/90">Versión de Java</span>
           <div className="relative">
             <select
               value={state.javaVer}
@@ -26,7 +26,7 @@ export function PerformanceTab({ state, updateState, toggleStateItem }: Performa
               className="w-full rounded-xl border border-white/10 bg-[#140e36]/90 px-4 py-3 pr-10 text-sm text-[#ece9ff] focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors appearance-none cursor-pointer"
             >
               <option value="17" className="bg-[#140e36] text-[#ece9ff]">Java 17 (LTS)</option>
-              <option value="21" className="bg-[#140e36] text-[#ece9ff]">Java 21 (LTS) - Recommended</option>
+              <option value="21" className="bg-[#140e36] text-[#ece9ff]">Java 21 (LTS) - Recomendado</option>
               <option value="22" className="bg-[#140e36] text-[#ece9ff]">Java 22</option>
             </select>
             <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -35,18 +35,18 @@ export function PerformanceTab({ state, updateState, toggleStateItem }: Performa
         
         <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-border bg-white/5 mt-[28px]">
           <div className="min-w-0 pr-4">
-            <p className="text-sm font-bold text-foreground">Native Transport</p>
-            <p className="text-xs text-muted-foreground">Uses Epoll (Linux only) for faster networking</p>
+            <p className="text-sm font-bold text-foreground">Transporte Nativo (Native Transport)</p>
+            <p className="text-xs text-muted-foreground">Utiliza Epoll (solo Linux) para mayor velocidad de red</p>
           </div>
           <Toggle
             enabled={Boolean(state.nativeTransport)}
             onChange={() => toggleStateItem('nativeTransport')}
-            label="Native Transport"
+            label="Transporte Nativo"
           />
         </div>
 
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-end-stone/90">Min RAM (Xms)</span>
+          <span className="text-sm font-semibold text-end-stone/90">RAM Mínima (Xms)</span>
           <div className="relative">
             <select
               value={state.ramMin}
@@ -64,7 +64,7 @@ export function PerformanceTab({ state, updateState, toggleStateItem }: Performa
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-end-stone/90">Max RAM (Xmx)</span>
+          <span className="text-sm font-semibold text-end-stone/90">RAM Máxima (Xmx)</span>
           <div className="relative">
             <select
               value={state.ramMax}
@@ -83,7 +83,7 @@ export function PerformanceTab({ state, updateState, toggleStateItem }: Performa
       </div>
       
       <div className="mt-6 p-4 rounded-xl bg-primary/10 border border-primary/20">
-        <p className="text-xs text-primary/80 font-mono">Aikar's flags are automatically injected on boot based on the RAM allocation to optimize garbage collection.</p>
+        <p className="text-xs text-primary/80 font-mono">Los flags de Aikar se inyectan automáticamente al iniciar según la asignación de RAM para optimizar la recolección de basura.</p>
       </div>
     </div>
   )

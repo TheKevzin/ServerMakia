@@ -89,12 +89,12 @@ export function BackupsView() {
       })
       const result = await res.json()
       if (result.success) {
-        toast.success('Backup creation initiated!')
+        toast.success('¡Creación de copia de seguridad iniciada!')
       } else {
-        toast.error(result.error || 'Failed to create backup')
+        toast.error(result.error || 'Error al crear la copia de seguridad')
       }
     } catch {
-      toast.error('Network error creating backup')
+      toast.error('Error de red al crear copia de seguridad')
     } finally {
       setCreating(false)
       setNewName('')
@@ -114,14 +114,14 @@ export function BackupsView() {
         body: JSON.stringify({ id }),
       })
       if (res.ok) {
-        toast.success(`Backup "${backupToDelete.name}" deleted!`)
+        toast.success(`¡Copia "${backupToDelete.name}" eliminada!`)
         setBackupToDelete(null)
         refreshBackups()
       } else {
-        toast.error('Failed to delete backup')
+        toast.error('Error al eliminar la copia de seguridad')
       }
     } catch {
-      toast.error('Error deleting backup')
+      toast.error('Error al eliminar la copia de seguridad')
     } finally {
       setIsDeleting(false)
     }
@@ -129,7 +129,7 @@ export function BackupsView() {
 
   const handleRestoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!backupToRestore || restoreConfirm !== 'RESTORE' || restoring) return
+    if (!backupToRestore || (restoreConfirm !== 'RESTORE' && restoreConfirm !== 'RESTAURAR') || restoring) return
 
     setRestoring(true)
     try {
@@ -144,15 +144,15 @@ export function BackupsView() {
       })
       const result = await res.json()
       if (res.ok) {
-        toast.success('Server restored successfully!')
+        toast.success('¡Servidor restaurado exitosamente!')
         setIsRestoreModalOpen(false)
         setRestoreConfirm('')
         setBackupToRestore(null)
       } else {
-        toast.error(`Restore failed: ${result.error}`)
+        toast.error(`Error al restaurar: ${result.error}`)
       }
     } catch {
-      toast.error('Failed to restore backup')
+      toast.error('Error al restaurar la copia de seguridad')
     } finally {
       setRestoring(false)
     }
@@ -173,12 +173,12 @@ export function BackupsView() {
         body: JSON.stringify({ frequency, retention }),
       })
       if (res.ok) {
-        toast.success('Backup rule saved!')
+        toast.success('¡Regla de copias de seguridad guardada!')
       } else {
-        toast.error('Failed to save schedule')
+        toast.error('Error al guardar la regla')
       }
     } catch {
-      toast.error('Error saving schedule')
+      toast.error('Error al guardar la regla')
     } finally {
       setSavingSchedule(false)
     }
@@ -189,7 +189,7 @@ export function BackupsView() {
       {isServerOnline && (
         <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 animate-in fade-in">
           <p className="text-sm font-semibold text-rose-400">
-            ⚠️ Server is currently running. You must stop the server before restoring a backup.
+            ⚠️ El servidor está actualmente en ejecución. Debes detener el servidor antes de restaurar una copia de seguridad.
           </p>
         </div>
       )}
@@ -215,7 +215,7 @@ export function BackupsView() {
       <div className="glass flex flex-col rounded-3xl">
         <div className="border-b border-border p-5">
           <h2 className="font-heading text-sm font-semibold text-foreground">
-            Backup History
+            Historial de Copias de Seguridad
           </h2>
         </div>
         <ul className="divide-y divide-border">
@@ -225,7 +225,7 @@ export function BackupsView() {
             </li>
           ) : backups.length === 0 ? (
             <li className="px-5 py-10 text-center text-sm text-muted-foreground">
-              No backups yet. Create your first backup!
+              Aún no hay copias de seguridad. ¡Crea tu primera copia!
             </li>
           ) : (
             backups.map((b) => {
@@ -254,7 +254,7 @@ export function BackupsView() {
                               : 'border-border bg-white/5 text-muted-foreground'
                           )}
                         >
-                          {b.type}
+                          {b.type === 'Manual' ? 'Manual' : 'Automática'}
                         </span>
                         {b.note && (
                           <span className="rounded-md border border-sky-500/30 bg-sky-500/10 text-sky-300 px-1.5 py-0.5 text-[10px]">
@@ -279,13 +279,13 @@ export function BackupsView() {
                       className="flex items-center gap-1.5 rounded-xl border border-destructive/50 bg-destructive/20 px-3 py-1.5 text-xs font-bold text-rose-400 transition-colors hover:bg-destructive/30 disabled:opacity-40 cursor-pointer"
                     >
                       <RotateCcw className="size-3.5" />
-                      <span className="hidden sm:inline">Restore</span>
+                      <span className="hidden sm:inline">Restaurar</span>
                     </button>
                     <button
                       type="button"
                       disabled={inProgress}
                       onClick={() => setBackupToDownload(b)}
-                      title="Download"
+                      title="Descargar"
                       className="flex size-8 items-center justify-center rounded-xl border border-border bg-white/5 text-muted-foreground transition-colors hover:text-foreground hover:border-primary/40 disabled:opacity-40 cursor-pointer"
                     >
                       <Download className="size-3.5" />
@@ -294,7 +294,7 @@ export function BackupsView() {
                       type="button"
                       disabled={inProgress}
                       onClick={() => setBackupToDelete(b)}
-                      title="Delete"
+                      title="Eliminar"
                       className="flex size-8 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/10 text-rose-300 transition-colors hover:bg-destructive/20 disabled:opacity-40 cursor-pointer"
                     >
                       <Trash2 className="size-3.5" />

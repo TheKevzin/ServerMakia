@@ -16,7 +16,7 @@ export default function PanelLayout({
 
   // Extract the active section from the pathname (e.g., /dashboard → 'dashboard')
   const activeSection = pathname.split('/')[1] || 'dashboard'
-  const title = navItems.find((n) => n.id === activeSection)?.label ?? 'Dashboard'
+  const title = navItems.find((n) => n.id === activeSection)?.label ?? 'Panel Principal'
   const subtitle = pageSubtitles[activeSection]
 
   if (loading || !role) {
@@ -24,7 +24,7 @@ export default function PanelLayout({
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3">
         <div className="size-9 rounded-full border-2 border-primary/40 border-t-end-stone animate-spin shadow-[0_0_20px_rgba(98,6,191,0.5)]" />
         <span className="text-xs font-mono text-muted-foreground/70 animate-pulse tracking-wider">
-          INITIALIZING...
+          INICIALIZANDO...
         </span>
       </div>
     )

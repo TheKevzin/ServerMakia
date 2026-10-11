@@ -32,7 +32,7 @@ export function PlayersTable({
     await fetch('/api/server/rcon', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: `kick ${name} Kicked by admin` })
+      body: JSON.stringify({ command: `kick ${name} Expulsado por el administrador` })
     })
     refresh()
   }
@@ -133,7 +133,7 @@ export function PlayersTable({
                     </span>
                   </div>
                 ) : (
-                  <span className="text-xs text-muted-foreground font-mono">Offline</span>
+                  <span className="text-xs text-muted-foreground font-mono">Desconectado</span>
                 )}
                 <ChevronRight className="size-4 text-muted-foreground/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-end-stone" />
               </div>

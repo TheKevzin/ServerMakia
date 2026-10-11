@@ -74,7 +74,7 @@ function TreeItem({
         
         {/* Hover Context Menu */}
         <button 
-          title="File options"
+          title="Opciones del archivo"
           className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded-md transition-all"
           onClick={(e) => e.stopPropagation()}
         >
@@ -291,8 +291,8 @@ export function FilesView() {
         <div className="absolute inset-0 z-50 rounded-3xl border-2 border-dashed border-primary bg-background/80 flex items-center justify-center backdrop-blur-sm transition-all animate-in fade-in">
            <div className="text-center flex flex-col items-center">
              <Upload className="size-12 text-primary mb-4 animate-bounce" />
-             <p className="text-xl font-bold text-foreground">Drop files here</p>
-             <p className="text-sm text-muted-foreground">They will be uploaded automatically to the current directory</p>
+             <p className="text-xl font-bold text-foreground">Arrastra los archivos aquí</p>
+             <p className="text-sm text-muted-foreground">Se subirán automáticamente al directorio actual</p>
            </div>
         </div>
       )}
@@ -317,7 +317,7 @@ export function FilesView() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {isServerOnline && (
-             <span className="text-xs text-rose-400 mr-2 font-medium bg-rose-500/10 px-2 py-1 rounded-md border border-rose-500/20">Server is running. Stop to edit files.</span>
+             <span className="text-xs text-rose-400 mr-2 font-medium bg-rose-500/10 px-2 py-1 rounded-md border border-rose-500/20">El servidor está en ejecución. Deténlo para editar archivos.</span>
           )}
           <button 
             disabled={isServerOnline}
@@ -325,7 +325,7 @@ export function FilesView() {
             className="flex items-center gap-1.5 rounded-xl border border-border bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/40 disabled:opacity-50"
           >
             <Upload className="size-3.5" />
-            Upload
+            Subir
           </button>
           <button 
             disabled={isServerOnline}
@@ -336,7 +336,7 @@ export function FilesView() {
             className="flex items-center gap-1.5 rounded-xl border border-border bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/40 disabled:opacity-50"
           >
             <FolderPlus className="size-3.5" />
-            New Folder
+            Nueva Carpeta
           </button>
         </div>
       </div>
@@ -346,12 +346,12 @@ export function FilesView() {
         <div className="glass flex flex-col overflow-hidden rounded-3xl max-h-[700px]">
           <div className="border-b border-border px-4 py-3">
             <h2 className="font-heading text-sm font-semibold text-foreground">
-              Files
+              Archivos
             </h2>
           </div>
           <ul className="flex flex-col p-2 overflow-y-auto custom-scrollbar">
             {isLoading ? (
-              <li className="p-4 text-center text-sm text-muted-foreground animate-pulse">Loading files...</li>
+              <li className="p-4 text-center text-sm text-muted-foreground animate-pulse">Cargando archivos...</li>
             ) : (
               fileTree.map((node: FileNode) => (
                 <TreeItem key={node.id} node={node} activeId={activeId} onSelect={setActiveId} />
@@ -366,11 +366,11 @@ export function FilesView() {
             <div className="flex items-center gap-2">
               <FileText className="size-4 text-end-stone" />
               <span className="font-mono text-sm text-foreground">
-                {active?.name || 'Select a file'}
+                {active?.name || 'Selecciona un archivo'}
               </span>
               {dirty && (
                 <span className="rounded-md bg-amber-400/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
-                  Unsaved
+                  Sin guardar
                 </span>
               )}
             </div>
@@ -387,17 +387,17 @@ export function FilesView() {
                 className="flex items-center gap-1.5 rounded-lg border border-border bg-white/5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
               >
                 <RotateCcw className="size-3.5" />
-                Revert
+                Revertir
               </button>
               <button 
-                title="Download File" 
+                title="Descargar archivo" 
                 onClick={handleDownload}
                 className="flex items-center gap-1.5 rounded-lg border border-border bg-white/5 px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/40"
               >
                 <Download className="size-3.5" />
               </button>
               <button 
-                title={isServerOnline ? "Stop server to delete files" : "Delete File"} 
+                title={isServerOnline ? "Detén el servidor para eliminar archivos" : "Eliminar archivo"} 
                 onClick={() => {
                   if (isServerOnline || !activeId) return;
                   setDeleteConfirmOpen(true);
@@ -409,12 +409,12 @@ export function FilesView() {
               </button>
               <button
                 disabled={!dirty || isServerOnline}
-                title={isServerOnline ? "Stop server to save files" : "Save"}
+                title={isServerOnline ? "Detén el servidor para guardar archivos" : "Guardar"}
                 onClick={saveFile}
                 className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
               >
                 <Save className="size-3.5" />
-                Save
+                Guardar
               </button>
             </div>
           </div>
@@ -424,7 +424,7 @@ export function FilesView() {
             {!activeId ? (
               <div className="flex flex-col h-full w-full items-center justify-center text-muted-foreground gap-3">
                 <FileText className="size-8 opacity-20" />
-                <p>Select a file from the left panel to start editing</p>
+                <p>Selecciona un archivo del panel izquierdo para comenzar a editar</p>
               </div>
             ) : isFile && active?.content !== undefined ? (
               <Editor
@@ -446,7 +446,7 @@ export function FilesView() {
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                {isFolder ? "Cannot edit a folder. Select a text file." : "The file does not contain editable text."}
+                {isFolder ? "No se puede editar una carpeta. Selecciona un archivo de texto." : "El archivo no contiene texto editable."}
               </div>
             )}
           </div>
@@ -458,29 +458,29 @@ export function FilesView() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in">
           <div className="glass w-full max-w-md rounded-3xl p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-heading font-bold text-foreground">New Folder</h3>
-              <button onClick={() => setNewFolderOpen(false)} className="text-muted-foreground hover:text-foreground" title="Close" aria-label="Close">
+              <h3 className="text-lg font-heading font-bold text-foreground">Nueva Carpeta</h3>
+              <button onClick={() => setNewFolderOpen(false)} className="text-muted-foreground hover:text-foreground" title="Cerrar" aria-label="Cerrar">
                 <X className="size-5" />
               </button>
             </div>
             <form onSubmit={handleNewFolder} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-foreground">Folder Name</label>
+                <label className="text-sm text-foreground">Nombre de la Carpeta</label>
                 <input
                   type="text"
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
-                  placeholder="e.g. plugins"
+                  placeholder="ej. plugins"
                   autoFocus
                   className="rounded-xl border border-border bg-white/5 px-4 py-2 text-sm text-foreground outline-none focus:border-primary transition-colors"
                 />
               </div>
               <div className="flex gap-3 mt-2">
                 <button type="button" onClick={() => setNewFolderOpen(false)} className="flex-1 rounded-xl border border-border bg-white/5 py-2.5 text-sm font-semibold text-foreground hover:bg-white/10 transition-colors">
-                  Cancel
+                  Cancelar
                 </button>
                 <button type="submit" disabled={!newFolderName} className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50">
-                  Create
+                  Crear
                 </button>
               </div>
             </form>
@@ -496,20 +496,20 @@ export function FilesView() {
               <div className="flex size-10 items-center justify-center rounded-full bg-destructive/20 text-rose-500">
                 <AlertTriangle className="size-5" />
               </div>
-              <h3 className="text-xl font-heading font-bold text-rose-500">Delete File</h3>
+              <h3 className="text-xl font-heading font-bold text-rose-500">Eliminar Archivo</h3>
             </div>
             
             <p className="text-sm text-foreground/80 mb-6">
-              Are you sure you want to delete <strong className="text-foreground">{activeId}</strong>? This action cannot be undone.
+              ¿Estás seguro de que deseas eliminar <strong className="text-foreground">{activeId}</strong>? Esta acción no se puede deshacer.
             </p>
 
             <div className="flex gap-3 mt-2">
               <button type="button" onClick={() => setDeleteConfirmOpen(false)} className="flex-1 rounded-xl border border-border bg-white/5 py-2.5 text-sm font-semibold text-foreground hover:bg-white/10 transition-colors">
-                Cancel
+                Cancelar
               </button>
               <button onClick={handleDelete} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-destructive py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
                 <Trash2 className="size-4" />
-                Delete
+                Eliminar
               </button>
             </div>
           </div>

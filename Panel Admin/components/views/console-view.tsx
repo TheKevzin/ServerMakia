@@ -202,29 +202,29 @@ export function ConsoleView({ role }: { role?: string | null }) {
         {/* Quick Actions (Horizontal) */}
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={() => send('save-all')} className="flex items-center gap-1.5 rounded-lg border border-border bg-white/5 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors">
-            <Save className="size-3.5" /> Save
+            <Save className="size-3.5" /> Guardar
           </button>
           <button onClick={() => send('reload')} className="flex items-center gap-1.5 rounded-lg border border-border bg-white/5 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors">
-            <RefreshCw className="size-3.5" /> Reload
+            <RefreshCw className="size-3.5" /> Recargar
           </button>
           
           <div className="h-4 w-px bg-border mx-1" />
 
           <ToolbarDropdown 
-            icon={Cloud} label="Weather" send={send}
+            icon={Cloud} label="Clima" send={send}
             options={[
-              { label: 'Clear', cmd: 'weather clear', icon: Sun },
-              { label: 'Rain', cmd: 'weather rain', icon: CloudRain },
-              { label: 'Thunder', cmd: 'weather thunder', icon: CloudLightning },
+              { label: 'Despejado', cmd: 'weather clear', icon: Sun },
+              { label: 'Lluvia', cmd: 'weather rain', icon: CloudRain },
+              { label: 'Tormenta', cmd: 'weather thunder', icon: CloudLightning },
             ]} 
           />
           <ToolbarDropdown 
-            icon={Clock} label="Time" send={send}
+            icon={Clock} label="Tiempo" send={send}
             options={[
-              { label: 'Day', cmd: 'time set day', icon: Sunrise },
-              { label: 'Noon', cmd: 'time set noon', icon: Sun },
-              { label: 'Night', cmd: 'time set night', icon: Moon },
-              { label: 'Midnight', cmd: 'time set midnight', icon: MoonStar },
+              { label: 'Día', cmd: 'time set day', icon: Sunrise },
+              { label: 'Mediodía', cmd: 'time set noon', icon: Sun },
+              { label: 'Noche', cmd: 'time set night', icon: Moon },
+              { label: 'Medianoche', cmd: 'time set midnight', icon: MoonStar },
             ]} 
           />
 
@@ -233,11 +233,11 @@ export function ConsoleView({ role }: { role?: string | null }) {
               <div className="h-4 w-px bg-border mx-1" />
               {isRunning ? (
                 <button onClick={() => send('stop-process')} className="flex items-center gap-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-rose-400 hover:bg-destructive hover:text-white transition-colors">
-                  <Power className="size-3.5" /> Stop Server
+                  <Power className="size-3.5" /> Detener Servidor
                 </button>
               ) : (
                 <button onClick={() => send('start-process')} className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors">
-                  <MonitorPlay className="size-3.5" /> Start Server
+                  <MonitorPlay className="size-3.5" /> Iniciar Servidor
                 </button>
               )}
             </>
@@ -270,19 +270,19 @@ export function ConsoleView({ role }: { role?: string | null }) {
           {/* Mini Graph */}
           <div className="glass rounded-3xl p-5 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-sm font-semibold text-foreground">CPU Usage</h2>
+              <h2 className="font-heading text-sm font-semibold text-foreground">Uso de CPU</h2>
               <span className="flex size-2 rounded-full bg-chart-4 animate-pulse" />
             </div>
             <div className="text-center py-6">
               <p className="font-heading text-3xl font-bold text-chart-4">{metrics.cpu}%</p>
-              <p className="text-xs text-muted-foreground mt-1">CPU Load</p>
+              <p className="text-xs text-muted-foreground mt-1">Carga de CPU</p>
             </div>
           </div>
 
           {/* Filters */}
           <div className="glass flex flex-col gap-4 rounded-3xl p-5">
             <h2 className="font-heading text-sm font-semibold text-foreground">
-              Log Filters
+              Filtros de Registros
             </h2>
             <div className="flex flex-col gap-2">
               {(['ALL', 'INFO', 'WARN', 'ERROR'] as Level[]).map((lvl) => (
@@ -296,7 +296,7 @@ export function ConsoleView({ role }: { role?: string | null }) {
                       : 'border-border bg-white/5 text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  <span>{lvl}</span>
+                  <span>{lvl === 'ALL' ? 'TODOS' : lvl}</span>
                   {lvl !== 'ALL' && (
                     <span className="tabular-nums opacity-70">
                       {counts[lvl as keyof typeof counts]}
@@ -309,11 +309,11 @@ export function ConsoleView({ role }: { role?: string | null }) {
             <div className="mt-2 flex items-center justify-between gap-2 border-t border-border pt-4">
               <button onClick={clearLogs} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-white/5 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-rose-300">
                 <Trash2 className="size-3.5" />
-                Clear
+                Limpiar
               </button>
               <button onClick={exportLogs} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border bg-white/5 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground">
                 <Download className="size-3.5" />
-                Export
+                Exportar
               </button>
             </div>
           </div>
@@ -335,7 +335,7 @@ export function ConsoleView({ role }: { role?: string | null }) {
               {isStreaming ? (
                 <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/20">
                   <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  SSE LIVE
+                  EN VIVO (SSE)
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400 border border-amber-500/20">
@@ -360,7 +360,7 @@ export function ConsoleView({ role }: { role?: string | null }) {
             ))}
             {filtered.length === 0 && (
               <p className="py-10 text-center text-muted-foreground">
-                No logs for this filter.
+                No hay registros para este filtro.
               </p>
             )}
           </div>
@@ -374,11 +374,11 @@ export function ConsoleView({ role }: { role?: string | null }) {
               value={command}
               onChange={(e) => setCommand(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type a command and press Enter... (Use Up/Down for history)"
+              placeholder="Escribe un comando y presiona Enter... (Usa Arriba/Abajo para historial)"
               className="flex-1 bg-transparent font-mono text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
             />
             <button type="submit" className="rounded-xl bg-primary/25 px-4 py-2 text-xs font-medium text-end-stone transition-colors hover:bg-primary/40">
-              Send
+              Enviar
             </button>
           </form>
         </div>

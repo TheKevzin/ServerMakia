@@ -98,29 +98,29 @@ export function PlayerProfileModal({
   }, [onClose])
 
   const handleBan = async () => {
-    if (!confirm(`Are you sure you want to ban ${player.name} from the server?`)) return
+    if (!confirm(`¿Estás seguro de que deseas banear a ${player.name} del servidor?`)) return
     setIsBanning(true)
     try {
       await fetch('/api/server/rcon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: `ban ${player.name} Banned by admin via web panel` })
+        body: JSON.stringify({ command: `ban ${player.name} Baneado por el administrador` })
       })
-      toast.success(`Player ${player.name} has been banned.`)
+      toast.success(`El jugador ${player.name} ha sido baneado.`)
       onClose()
     } catch {
-      toast.error(`Failed to ban ${player.name}`)
+      toast.error(`Error al banear a ${player.name}`)
     }
     setIsBanning(false)
   }
 
-  const isOnline = player.lastSeen?.toLowerCase().includes('online')
+  const isOnline = player.lastSeen?.toLowerCase().includes('online') || player.lastSeen?.toLowerCase().includes('en línea')
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`${player.name} profile`}
+      aria-label={`Perfil de ${player.name}`}
       className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 p-0 backdrop-blur-md sm:items-center sm:p-4 animate-in fade-in"
       onClick={onClose}
     >
@@ -160,7 +160,8 @@ export function PlayerProfileModal({
           </div>
           <button
             onClick={onClose}
-            aria-label="Close profile"
+            aria-label="Cerrar perfil"
+            title="Cerrar perfil"
             className="flex size-8 items-center justify-center rounded-xl border border-border bg-white/5 text-muted-foreground transition-colors hover:text-foreground hover:bg-white/10"
           >
             <X className="size-4" />
@@ -170,8 +171,8 @@ export function PlayerProfileModal({
         <div className="flex flex-col gap-5 p-5">
           {/* Health & food bars */}
           <div className="flex flex-col gap-3">
-            <Bar label="Health" icon={Heart} value={player.health ?? 20} max={20} color="bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" />
-            <Bar label="Hunger" icon={Drumstick} value={player.food ?? 20} max={20} color="bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+            <Bar label="Salud" icon={Heart} value={player.health ?? 20} max={20} color="bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" />
+            <Bar label="Hambre" icon={Drumstick} value={player.food ?? 20} max={20} color="bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
           </div>
 
           {/* Location */}
@@ -187,12 +188,12 @@ export function PlayerProfileModal({
 
           {/* Stats grid */}
           <div className="grid grid-cols-2 gap-3">
-            <StatPill icon={Star} label="XP Level" value={player.xpLevel ?? 0} />
-            <StatPill icon={Clock} label="Playtime" value={player.playtime || '0m'} />
-            <StatPill icon={Skull} label="Deaths" value={player.deaths ?? 0} />
-            <StatPill icon={Swords} label="Mob Kills" value={(player.mobKills ?? 0).toLocaleString()} />
-            <StatPill icon={Pickaxe} label="Blocks Mined" value={(player.blocksMined ?? 0).toLocaleString()} />
-            <StatPill icon={CalendarDays} label="First Seen" value={player.joined || 'Recent'} />
+            <StatPill icon={Star} label="Nivel de XP" value={player.xpLevel ?? 0} />
+            <StatPill icon={Clock} label="Tiempo Jugado" value={player.playtime || '0m'} />
+            <StatPill icon={Skull} label="Muertes" value={player.deaths ?? 0} />
+            <StatPill icon={Swords} label="Mobs Eliminados" value={(player.mobKills ?? 0).toLocaleString()} />
+            <StatPill icon={Pickaxe} label="Bloques Minados" value={(player.blocksMined ?? 0).toLocaleString()} />
+            <StatPill icon={CalendarDays} label="Primera Conexión" value={player.joined || 'Reciente'} />
           </div>
 
           {/* Inventory */}
@@ -200,10 +201,10 @@ export function PlayerProfileModal({
             <div className="mb-2 flex items-center justify-between">
               <p className="flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
                 <Package className="size-4 text-primary" />
-                Current Inventory
+                Inventario Actual
               </p>
               <span className="text-xs text-muted-foreground">
-                {player.inventory?.filter(s => s.qty > 0).length || 0} items
+                {player.inventory?.filter(s => s.qty > 0).length || 0} objetos
               </span>
             </div>
             
@@ -222,7 +223,7 @@ export function PlayerProfileModal({
                 ))
               ) : (
                 <li className="px-4 py-6 text-center text-xs text-muted-foreground">
-                  Inventory is empty
+                  El inventario está vacío
                 </li>
               )}
             </ul>

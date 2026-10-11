@@ -83,7 +83,7 @@ export function MetricCards() {
             const m = Math.floor((uptimeSecs % 3600) / 60)
             setUptime(`${d}d ${h}h ${m}m`)
           } else if (!data.isRunning) {
-            setUptime('Offline')
+            setUptime('Desconectado')
           }
 
           const cpuVal = parseFloat(data.metrics.cpu) || 0
@@ -114,41 +114,41 @@ export function MetricCards() {
 
   const metrics = [
     {
-      label: 'CPU Load',
+      label: 'Carga de CPU',
       numericValue: cpuNumber,
       decimals: 1,
       suffix: '%',
-      sub: 'Server Usage',
+      sub: 'Uso del Servidor',
       icon: Cpu,
       data: cpuHist,
       color: 'var(--neon)',
-      trend: 'Live',
+      trend: 'En vivo',
       minVal: 0,
       maxVal: Math.max(30, Math.ceil(Math.max(...cpuHist, 10) / 10) * 10),
     },
     {
-      label: 'Memory',
+      label: 'Memoria RAM',
       numericValue: ramNumber,
       decimals: 1,
       suffix: ' GB',
-      sub: '16 GB Total',
+      sub: '16 GB Totales',
       icon: MemoryStick,
       data: ramHist,
       color: '#e1f2bd',
-      trend: 'Live',
+      trend: 'En vivo',
       minVal: 0,
       maxVal: 16,
     },
     {
-      label: 'Players',
+      label: 'Jugadores',
       numericValue: metricsData.players || 0,
       decimals: 0,
       suffix: '',
-      sub: 'Online now',
+      sub: 'En línea ahora',
       icon: Users,
       data: playerHist,
       color: '#b06bf0',
-      trend: 'Live',
+      trend: 'En vivo',
       minVal: 0,
       maxVal: Math.max(10, Math.max(...playerHist) + 2),
     },
@@ -205,7 +205,7 @@ export function MetricCards() {
               <Clock className="size-4.5" />
             </div>
             <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-              Uptime
+              Tiempo Activo
             </span>
           </div>
           <StatusBadge status={isRunning ? 'online' : 'offline'} />
@@ -216,7 +216,7 @@ export function MetricCards() {
             {uptime}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {isRunning ? 'Server runtime' : 'Server stopped'}
+            {isRunning ? 'Tiempo en ejecución' : 'Servidor detenido'}
           </p>
         </div>
 
@@ -241,7 +241,7 @@ export function MetricCards() {
               isRunning ? 'text-end-stone' : 'text-rose-300'
             )}
           >
-            {isRunning ? 'Online' : 'Offline'}
+            {isRunning ? 'En línea' : 'Desconectado'}
           </span>
         </div>
       </div>

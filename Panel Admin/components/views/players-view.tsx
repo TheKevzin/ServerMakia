@@ -72,7 +72,7 @@ export function PlayersView({
     await fetch('/api/server/rcon', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: `kick ${name} Kicked by admin` })
+      body: JSON.stringify({ command: `kick ${name} Expulsado por el administrador` })
     })
     refreshPlayers()
   }
@@ -81,7 +81,7 @@ export function PlayersView({
     await fetch('/api/server/rcon', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: `ban ${name} Banned by admin` })
+      body: JSON.stringify({ command: `ban ${name} Baneado por el administrador` })
     })
     refreshPlayers()
     setTimeout(() => refreshBanned(), 800)
@@ -120,9 +120,9 @@ export function PlayersView({
   const activePlayers = players.filter(p => p.isActive)
 
   const stats = [
-    { label: 'Online Now', value: String(activePlayers.length), icon: Users },
-    { label: 'Avg. Latency', value: activePlayers.length > 0 ? Math.round(activePlayers.reduce((a, p) => a + p.latency, 0) / activePlayers.length) + 'ms' : '—', icon: Clock },
-    { label: 'Banned', value: String(bannedPlayers.length), icon: ShieldAlert },
+    { label: 'En Línea Ahora', value: String(activePlayers.length), icon: Users },
+    { label: 'Latencia Promedio', value: activePlayers.length > 0 ? Math.round(activePlayers.reduce((a, p) => a + p.latency, 0) / activePlayers.length) + 'ms' : '—', icon: Clock },
+    { label: 'Baneados', value: String(bannedPlayers.length), icon: ShieldAlert },
   ]
 
   if (selectedPlayerName) {
@@ -162,10 +162,10 @@ export function PlayersView({
         <div className="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <h2 className="font-heading text-sm font-semibold text-foreground">
-              Server Players
+              Jugadores del Servidor
             </h2>
             <span className="rounded-full bg-primary/25 px-2 py-0.5 text-xs font-medium text-end-stone">
-              {activePlayers.length} online
+              {activePlayers.length} en línea
             </span>
           </div>
           <div className="relative">
@@ -173,7 +173,7 @@ export function PlayersView({
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search players..."
+              placeholder="Buscar jugadores..."
               className="w-full rounded-xl border border-border bg-white/5 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 sm:w-56"
             />
           </div>
@@ -188,7 +188,7 @@ export function PlayersView({
                 "group flex items-center gap-4 px-5 py-3.5 transition-all cursor-pointer hover:bg-white/[0.06] select-none",
                 !p.isActive && "opacity-60 grayscale hover:opacity-85"
               )}
-              title="Click to view player stats & inventory"
+              title="Haz clic para ver estadísticas e inventario"
             >
               <img
                 src={p.avatar || '/placeholder.svg'}
@@ -202,7 +202,7 @@ export function PlayersView({
                   </p>
                   {role === 'VIEWER' ? (
                     <span
-                      title="Rank"
+                      title="Rango"
                       className={cn(
                         'w-max rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-center',
                         roleBadge(p.role, p.isActive),
@@ -220,7 +220,7 @@ export function PlayersView({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Member" className="focus:bg-white/10 cursor-pointer">MEMBER</SelectItem>
+                          <SelectItem value="Member" className="focus:bg-white/10 cursor-pointer">MIEMBRO</SelectItem>
                           <SelectItem value="Mod" className="focus:bg-[#b06bf0]/20 text-[#d8b8f7] cursor-pointer">MOD</SelectItem>
                           <SelectItem value="Admin" className="focus:bg-primary/20 text-end-stone cursor-pointer">ADMIN</SelectItem>
                         </SelectContent>
@@ -242,7 +242,7 @@ export function PlayersView({
                     </span>
                   </>
                 ) : (
-                  <span className="text-xs text-muted-foreground">Offline</span>
+                  <span className="text-xs text-muted-foreground">Desconectado</span>
                 )}
               </div>
 
@@ -257,7 +257,7 @@ export function PlayersView({
                       className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-300 transition-colors hover:bg-amber-500/20"
                     >
                       <LogOut className="size-3.5" />
-                      Kick
+                      Expulsar
                     </button>
                   )}
                   <button
@@ -268,7 +268,7 @@ export function PlayersView({
                     className="flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-rose-300 transition-colors hover:bg-destructive/20"
                   >
                     <Ban className="size-3.5" />
-                    Ban
+                    Banear
                   </button>
                 </div>
               )}
@@ -278,7 +278,7 @@ export function PlayersView({
           ))}
           {filtered.length === 0 && (
             <li className="px-5 py-10 text-center text-sm text-muted-foreground">
-              No players found.
+              No se encontraron jugadores.
             </li>
           )}
         </ul>
@@ -289,7 +289,7 @@ export function PlayersView({
         <div className="flex items-center gap-2 border-b border-border p-5">
           <Ban className="size-4 text-rose-300" />
           <h2 className="font-heading text-sm font-semibold text-foreground">
-            Banned Players
+            Jugadores Baneados
           </h2>
           <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-medium text-rose-300">
             {bannedPlayers.length}
@@ -311,7 +311,7 @@ export function PlayersView({
                   {b.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {b.reason} · by {b.source}
+                  {b.reason} · por {b.source}
                 </p>
               </div>
               {role !== 'VIEWER' && (
@@ -319,14 +319,14 @@ export function PlayersView({
                   onClick={() => pardonPlayer(b.name)}
                   className="rounded-xl border border-border bg-white/5 px-3 py-1.5 text-xs font-medium text-end-stone transition-colors hover:border-primary/40"
                 >
-                  Pardon
+                  Desbanear
                 </button>
               )}
             </li>
           ))}
           {bannedPlayers.length === 0 && (
             <li className="px-5 py-10 text-center text-sm text-muted-foreground">
-              No banned players.
+              No hay jugadores baneados.
             </li>
           )}
         </ul>

@@ -61,7 +61,7 @@ export function TopBar({
               {username || 'Operador'}
             </span>
             <span className="text-[10px] text-muted-foreground/80 leading-none mt-0.5">
-              Admin
+              Administrador
             </span>
           </div>
         </div>

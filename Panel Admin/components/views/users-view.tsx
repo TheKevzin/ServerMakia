@@ -40,7 +40,7 @@ export function UsersView() {
         setUsers(await res.json())
       }
     } catch (e) {
-      toast.error('Failed to load users')
+      toast.error('Error al cargar usuarios')
     } finally {
       setLoading(false)
     }
@@ -58,7 +58,7 @@ export function UsersView() {
       })
 
       if (res.ok) {
-        toast.success('User added successfully')
+        toast.success('Usuario agregado exitosamente')
         setIsAdding(false)
         setNewUsername('')
         setNewPassword('')
@@ -67,19 +67,19 @@ export function UsersView() {
         fetchUsers()
       } else {
         const error = await res.json()
-        toast.error(error.error || 'Failed to add user')
+        toast.error(error.error || 'Error al agregar usuario')
       }
     } catch (e) {
-      toast.error('Network error')
+      toast.error('Error de red')
     }
   }
 
   const handleDeleteUser = async (id: string, username: string) => {
     if (username === 'admin') {
-      toast.error('Cannot delete the root admin account')
+      toast.error('No se puede eliminar la cuenta principal de administrador')
       return
     }
-    if (!confirm(`Are you sure you want to delete ${username}?`)) return
+    if (!confirm(`¿Estás seguro de que deseas eliminar a ${username}?`)) return
 
     try {
       const res = await fetch('/api/users', {
@@ -89,13 +89,13 @@ export function UsersView() {
       })
 
       if (res.ok) {
-        toast.success('User deleted')
+        toast.success('Usuario eliminado')
         fetchUsers()
       } else {
-        toast.error('Failed to delete user')
+        toast.error('Error al eliminar usuario')
       }
     } catch (e) {
-      toast.error('Network error')
+      toast.error('Error de red')
     }
   }
 
@@ -108,13 +108,13 @@ export function UsersView() {
       })
 
       if (res.ok) {
-        toast.success(`${username} approved and whitelisted!`)
+        toast.success(`¡${username} aprobado y añadido a la lista blanca!`)
         fetchUsers()
       } else {
-        toast.error('Failed to approve user')
+        toast.error('Error al aprobar usuario')
       }
     } catch (e) {
-      toast.error('Network error')
+      toast.error('Error de red')
     }
   }
 
@@ -127,33 +127,33 @@ export function UsersView() {
       })
 
       if (res.ok) {
-        toast.success(`Role updated to ${newRole}`)
+        toast.success(`Rol actualizado a ${newRole}`)
         fetchUsers()
       } else {
-        toast.error('Failed to update role')
+        toast.error('Error al actualizar rol')
       }
     } catch (e) {
-      toast.error('Network error')
+      toast.error('Error de red')
     }
   }
 
   if (loading) {
-    return <div className="p-10 text-center text-muted-foreground animate-pulse">Loading users...</div>
+    return <div className="p-10 text-center text-muted-foreground animate-pulse">Cargando usuarios...</div>
   }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="glass flex items-center justify-between rounded-3xl p-6">
         <div>
-          <h2 className="text-lg font-bold text-foreground font-heading">Panel Accounts</h2>
-          <p className="text-sm text-muted-foreground">Manage who can access and control the web panel.</p>
+          <h2 className="text-lg font-bold text-foreground font-heading">Cuentas del Panel</h2>
+          <p className="text-sm text-muted-foreground">Administra quién puede acceder y controlar el panel web.</p>
         </div>
         <button
           onClick={() => setIsAdding(!isAdding)}
           className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-end-stone transition-all hover:bg-primary/80"
         >
           <UserPlus className="size-4" />
-          {isAdding ? 'Cancel' : 'New User'}
+          {isAdding ? 'Cancelar' : 'Nuevo Usuario'}
         </button>
       </div>
 
@@ -161,7 +161,7 @@ export function UsersView() {
         <form onSubmit={handleAddUser} className="glass grid gap-4 rounded-3xl p-6 md:grid-cols-2 lg:grid-cols-5">
           <input
             type="text"
-            placeholder="Username *"
+            placeholder="Usuario *"
             value={newUsername}
             onChange={(e) => setNewUsername(e.target.value)}
             className="rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm focus:border-primary/50 focus:outline-none"
@@ -169,14 +169,14 @@ export function UsersView() {
           />
           <input
             type="text"
-            placeholder="Display Name"
+            placeholder="Nombre visible"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             className="rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm focus:border-primary/50 focus:outline-none"
           />
           <input
             type="password"
-            placeholder="Password *"
+            placeholder="Contraseña *"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             className="rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm focus:border-primary/50 focus:outline-none"
@@ -184,16 +184,16 @@ export function UsersView() {
           />
           <Select value={newRole} onValueChange={(val) => { if (val) setNewRole(val) }}>
             <SelectTrigger className="rounded-xl border border-white/10 bg-black/40 h-10 px-4 py-2 text-sm text-foreground focus:border-primary/50 focus:outline-none">
-              <SelectValue placeholder="Select role" />
+              <SelectValue placeholder="Seleccionar rol" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="VIEWER" className="focus:bg-white/10 cursor-pointer">Viewer (Read Only)</SelectItem>
-              <SelectItem value="MODERATOR" className="focus:bg-amber-500/20 text-amber-400 cursor-pointer">Moderator (Console & Players)</SelectItem>
-              <SelectItem value="ADMIN" className="focus:bg-primary/20 text-primary cursor-pointer">Admin (Full Access)</SelectItem>
+              <SelectItem value="VIEWER" className="focus:bg-white/10 cursor-pointer">Lector (Solo lectura)</SelectItem>
+              <SelectItem value="MODERATOR" className="focus:bg-amber-500/20 text-amber-400 cursor-pointer">Moderador (Consola y Jugadores)</SelectItem>
+              <SelectItem value="ADMIN" className="focus:bg-primary/20 text-primary cursor-pointer">Administrador (Acceso Total)</SelectItem>
             </SelectContent>
           </Select>
           <button type="submit" className="rounded-xl bg-emerald-500/20 text-emerald-400 font-bold hover:bg-emerald-500/30 transition-all border border-emerald-500/30">
-            Create
+            Crear
           </button>
         </form>
       )}
@@ -202,10 +202,10 @@ export function UsersView() {
         <table className="w-full text-left text-sm">
           <thead className="bg-black/20 border-b border-border/50 text-muted-foreground">
             <tr>
-              <th className="px-6 py-4 font-medium">User</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium">Role</th>
-              <th className="px-6 py-4 font-medium text-right">Actions</th>
+              <th className="px-6 py-4 font-medium">Usuario</th>
+              <th className="px-6 py-4 font-medium">Estado</th>
+              <th className="px-6 py-4 font-medium">Rol</th>
+              <th className="px-6 py-4 font-medium text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50">
@@ -222,7 +222,7 @@ export function UsersView() {
                     )}
                     <div>
                       <p className="font-semibold text-foreground">{user.username}</p>
-                      <p className="text-xs text-muted-foreground">{user.minecraftName ? `MC: ${user.minecraftName}` : (user.name || 'No display name')}</p>
+                      <p className="text-xs text-muted-foreground">{user.minecraftName ? `MC: ${user.minecraftName}` : (user.name || 'Sin nombre visible')}</p>
                     </div>
                   </div>
                 </td>
@@ -232,12 +232,12 @@ export function UsersView() {
                     'bg-amber-500/10 text-amber-400 border-amber-500/20'
                   }`}>
                     <span className={`size-1.5 rounded-full ${user.status === 'APPROVED' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
-                    {user.status}
+                    {user.status === 'APPROVED' ? 'Aprobado' : 'Pendiente'}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <Select value={user.role} onValueChange={(val) => { if (val) handleChangeRole(user.id, val) }}>
-                    <SelectTrigger className={`inline-flex h-auto w-[120px] items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium border focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer ${
+                    <SelectTrigger className={`inline-flex h-auto w-[130px] items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium border focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer ${
                       user.role === 'ADMIN' ? 'bg-primary/20 text-primary border-primary/30' :
                       user.role === 'MODERATOR' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
                       'bg-slate-500/20 text-slate-300 border-slate-500/30'
@@ -245,9 +245,9 @@ export function UsersView() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="VIEWER" className="focus:bg-white/10 cursor-pointer">VIEWER</SelectItem>
-                      <SelectItem value="MODERATOR" className="focus:bg-amber-500/20 text-amber-400 cursor-pointer">MODERATOR</SelectItem>
-                      <SelectItem value="ADMIN" className="focus:bg-primary/20 text-primary cursor-pointer">ADMIN</SelectItem>
+                      <SelectItem value="VIEWER" className="focus:bg-white/10 cursor-pointer">LECTOR</SelectItem>
+                      <SelectItem value="MODERATOR" className="focus:bg-amber-500/20 text-amber-400 cursor-pointer">MODERADOR</SelectItem>
+                      <SelectItem value="ADMIN" className="focus:bg-primary/20 text-primary cursor-pointer">ADMINISTRADOR</SelectItem>
                     </SelectContent>
                   </Select>
                 </td>
@@ -257,7 +257,7 @@ export function UsersView() {
                       <button
                         onClick={() => handleApproveUser(user.id, user.username)}
                         className="rounded-lg p-2 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
-                        title="Approve User"
+                        title="Aprobar Usuario"
                       >
                         <CheckCircle2 className="size-4" />
                       </button>
@@ -265,8 +265,8 @@ export function UsersView() {
                     <button
                       onClick={() => handleDeleteUser(user.id, user.username)}
                       className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/20 hover:text-rose-400 transition-colors"
-                      title="Delete User"
-                      aria-label="Delete User"
+                      title="Eliminar Usuario"
+                      aria-label="Eliminar Usuario"
                     >
                       <Trash2 className="size-4" />
                     </button>
@@ -276,7 +276,7 @@ export function UsersView() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">No users found.</td>
+                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">No se encontraron usuarios.</td>
               </tr>
             )}
           </tbody>

@@ -147,6 +147,6 @@ export { proxy as middleware }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icon.svg|icon-dark-32x32.png|icon-light-32x32.png|apple-icon.png|map-api).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon.svg|icon-dark-32x32.png|icon-light-32x32.png|apple-icon.png).*)',
   ],
 }

@@ -84,7 +84,7 @@ export function ConsolePreview({ className }: { className?: string }) {
         </div>
         <div className="flex items-center gap-2.5">
           <h2 className="font-heading text-sm font-bold text-foreground tracking-tight">
-            Live Console
+            Consola en Vivo
           </h2>
           <StatusBadge status={isStreaming ? 'streaming' : isRunning ? 'online' : 'offline'} />
         </div>
@@ -92,19 +92,19 @@ export function ConsolePreview({ className }: { className?: string }) {
         <div className="ml-auto flex items-center gap-1.5">
           <button
             onClick={clearLogs}
-            title="Clear preview"
+            title="Limpiar vista previa"
             className="tactile-btn flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-white/10 hover:text-foreground"
           >
             <Trash2 className="size-3" />
-            <span className="hidden sm:inline">Clear</span>
+            <span className="hidden sm:inline">Limpiar</span>
           </button>
           <Link
             href="/console"
-            title="Open full console"
+            title="Abrir consola completa"
             className="tactile-btn flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] text-end-stone bg-primary/20 hover:bg-primary/30"
           >
             <ExternalLink className="size-3" />
-            <span className="hidden sm:inline">Full Console</span>
+            <span className="hidden sm:inline">Consola Completa</span>
           </Link>
         </div>
       </div>
@@ -140,7 +140,7 @@ export function ConsolePreview({ className }: { className?: string }) {
         {lines.length === 0 && (
           <div className="flex h-full min-h-[14rem] items-center justify-center">
             <p className="font-mono text-xs text-muted-foreground/50 animate-pulse">
-              Waiting for server logs...
+              Esperando registros del servidor...
             </p>
           </div>
         )}
@@ -156,7 +156,7 @@ export function ConsolePreview({ className }: { className?: string }) {
         <input
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          placeholder="e.g. say Welcome! or time set day..."
+          placeholder="ej. say ¡Bienvenidos! o time set day..."
           disabled={isSending}
           className="flex-1 bg-transparent font-mono text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none relative z-10 disabled:opacity-50"
         />
@@ -165,7 +165,7 @@ export function ConsolePreview({ className }: { className?: string }) {
           disabled={isSending || !command.trim()}
           className="tactile-btn relative z-10 rounded-xl bg-primary/25 px-3 py-1.5 text-xs font-bold text-end-stone hover:bg-primary/40 hover:shadow-[0_0_15px_rgba(98,6,191,0.3)] disabled:opacity-40 disabled:pointer-events-none"
         >
-          {isSending ? 'Sending...' : 'Send'}
+          {isSending ? 'Enviando...' : 'Enviar'}
         </button>
       </form>
     </div>

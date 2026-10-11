@@ -53,7 +53,7 @@ export function Sidebar({
           <p className="font-heading text-sm font-semibold leading-tight text-foreground">
             ServerMakia
           </p>
-          <p className="text-xs text-muted-foreground">Admin Panel</p>
+          <p className="text-xs text-muted-foreground">Panel de Control</p>
         </div>
       </div>
 
@@ -105,17 +105,17 @@ export function Sidebar({
           <StatusDot status={isRunning ? 'online' : 'offline'} />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium text-foreground truncate">
-              {isRunning ? 'Server Online' : 'Server Offline'}
+              {isRunning ? 'Servidor en Línea' : 'Servidor Desconectado'}
             </p>
             <p className="text-[11px] text-muted-foreground truncate">
-              {isRunning ? '1.21.11 · Fabric' : 'Stopped'}
+              {isRunning ? '1.21.11 · Fabric' : 'Detenido'}
             </p>
           </div>
         </div>
         <button
           onClick={handleLogout}
           className="tactile-btn shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-white/5 hover:text-rose-400"
-          title="Sign out"
+          title="Cerrar sesión"
         >
           <LogOut className="size-4" />
         </button>

@@ -18,22 +18,22 @@ import {
 } from 'lucide-react'
 
 const serverActions = [
-  { id: 'start', label: 'Start Server', icon: Play, tone: 'emerald' },
-  { id: 'restart', label: 'Restart Server', icon: RotateCcw, tone: 'neon' },
-  { id: 'stop', label: 'Stop Server', icon: Square, tone: 'destructive' },
+  { id: 'start', label: 'Iniciar Servidor', icon: Play, tone: 'emerald' },
+  { id: 'restart', label: 'Reiniciar Servidor', icon: RotateCcw, tone: 'neon' },
+  { id: 'stop', label: 'Detener Servidor', icon: Square, tone: 'destructive' },
 ] as const
 
 const timeActions = [
-  { id: 'day', label: 'Day', icon: Sun },
-  { id: 'noon', label: 'Noon', icon: Sunset },
-  { id: 'night', label: 'Night', icon: Moon },
-  { id: 'midnight', label: 'Midnight', icon: MoonStar },
+  { id: 'day', label: 'Día', icon: Sun },
+  { id: 'noon', label: 'Mediodía', icon: Sunset },
+  { id: 'night', label: 'Noche', icon: Moon },
+  { id: 'midnight', label: 'Medianoche', icon: MoonStar },
 ] as const
 
 const weatherActions = [
-  { id: 'clear', label: 'Clear Sky', icon: CloudSun },
-  { id: 'rain', label: 'Rain', icon: CloudRain },
-  { id: 'storm', label: 'Thunderstorm', icon: CloudLightning },
+  { id: 'clear', label: 'Despejado', icon: CloudSun },
+  { id: 'rain', label: 'Lluvia', icon: CloudRain },
+  { id: 'storm', label: 'Tormenta Eléctrica', icon: CloudLightning },
 ] as const
 
 export function QuickActions({ role }: { role?: string | null }) {
@@ -51,13 +51,13 @@ export function QuickActions({ role }: { role?: string | null }) {
     setActionLoading(actionId)
     try {
       if (actionId === 'start') {
-        logAction('Starting Minecraft server...')
+        logAction('Iniciando servidor de Minecraft...')
         await fetch('/api/server/start', { method: 'POST' })
       } else if (actionId === 'stop') {
-        logAction('Stopping Minecraft server...')
+        logAction('Deteniendo servidor de Minecraft...')
         await fetch('/api/server/stop', { method: 'POST' })
       } else if (actionId === 'restart') {
-        logAction('Restarting server...')
+        logAction('Reiniciando servidor...')
         await fetch('/api/server/stop', { method: 'POST' })
         setTimeout(async () => {
           await fetch('/api/server/start', { method: 'POST' })
@@ -70,7 +70,7 @@ export function QuickActions({ role }: { role?: string | null }) {
 
   const setServerTime = async (id: string) => {
     setTime(id)
-    logAction(`Executing: /time set ${id}`)
+    logAction(`Ejecutando: /time set ${id}`)
     await fetch('/api/server/rcon', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -81,7 +81,7 @@ export function QuickActions({ role }: { role?: string | null }) {
   const setServerWeather = async (id: string) => {
     setWeather(id)
     const cmd = id === 'storm' ? 'thunder' : id
-    logAction(`Executing: /weather ${cmd}`)
+    logAction(`Ejecutando: /weather ${cmd}`)
     await fetch('/api/server/rcon', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -96,7 +96,7 @@ export function QuickActions({ role }: { role?: string | null }) {
         <div className="flex flex-col">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground">
-              Power Controls
+              Control de Energía
             </h2>
             <span className="text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">Control</span>
           </div>
@@ -124,7 +124,7 @@ export function QuickActions({ role }: { role?: string | null }) {
                       <a.icon className="size-4 group-hover:scale-110 transition-transform duration-150" />
                     )}
                   </div>
-                  <span className="font-semibold">{isLoading ? 'Executing...' : a.label}</span>
+                  <span className="font-semibold">{isLoading ? 'Ejecutando...' : a.label}</span>
                 </button>
               )
             })}
@@ -136,7 +136,7 @@ export function QuickActions({ role }: { role?: string | null }) {
       <div className="flex flex-col">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground">
-            Time Control
+            Control del Tiempo
           </h2>
           <span className="text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">Overworld</span>
         </div>
@@ -170,7 +170,7 @@ export function QuickActions({ role }: { role?: string | null }) {
       <div className="flex flex-col">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground">
-            Weather Control
+            Control del Clima
           </h2>
           <span className="text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">Overworld</span>
         </div>

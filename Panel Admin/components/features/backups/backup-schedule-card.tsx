@@ -44,12 +44,12 @@ export function BackupScheduleCard({
         <div>
           <div className="flex items-center gap-4 mb-2">
             <p className="font-heading text-sm font-semibold text-foreground">
-              Automatic Backups
+              Copias de Seguridad Automáticas
             </p>
             <button
               type="button"
               role="switch"
-              title="Toggle Auto Backup"
+              title="Alternar Copia Automática"
               aria-checked={autoBackup}
               onClick={() => setAutoBackup((v) => !v)}
               className={cn(
@@ -68,25 +68,25 @@ export function BackupScheduleCard({
           {autoBackup && (
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-2">
               <Select value={frequency} onValueChange={(val) => { if (val) setFrequency(val) }}>
-                <SelectTrigger title="Backup frequency" className="w-[180px] bg-white/5 border-border text-foreground">
-                  <SelectValue placeholder="Frequency" />
+                <SelectTrigger title="Frecuencia de respaldo" className="w-[180px] bg-white/5 border-border text-foreground">
+                  <SelectValue placeholder="Frecuencia" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Every 12 hours">Every 12 hours</SelectItem>
-                  <SelectItem value="Daily at 00:00">Daily at 00:00</SelectItem>
-                  <SelectItem value="Weekly on Sunday">Weekly on Sunday</SelectItem>
+                  <SelectItem value="Every 12 hours">Cada 12 horas</SelectItem>
+                  <SelectItem value="Daily at 00:00">Diario a las 00:00</SelectItem>
+                  <SelectItem value="Weekly on Sunday">Semanal los domingos</SelectItem>
                 </SelectContent>
               </Select>
-              <span>keep last</span>
+              <span>conservar últimas</span>
               <Select value={retention} onValueChange={(val) => { if (val) setRetention(val) }}>
-                <SelectTrigger title="Retention policy" className="w-[120px] bg-white/5 border-border text-foreground">
-                  <SelectValue placeholder="Retention" />
+                <SelectTrigger title="Política de retención" className="w-[120px] bg-white/5 border-border text-foreground">
+                  <SelectValue placeholder="Retención" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3 days">3 days</SelectItem>
-                  <SelectItem value="7 days">7 days</SelectItem>
-                  <SelectItem value="14 days">14 days</SelectItem>
-                  <SelectItem value="30 days">30 days</SelectItem>
+                  <SelectItem value="3 days">3 días</SelectItem>
+                  <SelectItem value="7 days">7 días</SelectItem>
+                  <SelectItem value="14 days">14 días</SelectItem>
+                  <SelectItem value="30 days">30 días</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -96,7 +96,7 @@ export function BackupScheduleCard({
                 disabled={savingSchedule}
                 className="ml-2 rounded-lg bg-primary/20 border border-primary/40 px-3 py-1.5 text-xs font-semibold text-end-stone hover:bg-primary/30 transition-colors disabled:opacity-50 cursor-pointer"
               >
-                {savingSchedule ? 'Saving...' : 'Save Rule'}
+                {savingSchedule ? 'Guardando...' : 'Guardar Regla'}
               </button>
             </div>
           )}
@@ -110,7 +110,7 @@ export function BackupScheduleCard({
         className="flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-[0_0_20px_rgba(98,6,191,0.3)] cursor-pointer"
       >
         {creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-        Create Backup Now
+        Crear Copia Ahora
       </button>
     </div>
   )

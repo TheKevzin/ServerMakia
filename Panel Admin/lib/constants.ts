@@ -1,5 +1,4 @@
-// ── Navigation ─────────────────────────────────────────────
-// Clean constants — NO mock data, NO types (those live in /types)
+// ── Navegación del Panel ────────────────────────────────────
 
 export type NavIcon =
   | 'dashboard'
@@ -26,43 +25,43 @@ export const navGroups: NavGroup[] = [
   {
     group: 'General',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/dashboard' },
+      { id: 'dashboard', label: 'Panel Principal', icon: 'dashboard', href: '/dashboard' },
     ],
   },
   {
-    group: 'Management',
+    group: 'Gestión',
     items: [
-      { id: 'console', label: 'Console', icon: 'console', href: '/console' },
-      { id: 'players', label: 'Players', icon: 'players', href: '/players' },
-      { id: 'users', label: 'Users', icon: 'users', href: '/users' },
+      { id: 'console', label: 'Consola', icon: 'console', href: '/console' },
+      { id: 'players', label: 'Jugadores', icon: 'players', href: '/players' },
+      { id: 'users', label: 'Usuarios', icon: 'users', href: '/users' },
     ],
   },
   {
-    group: 'Server',
+    group: 'Servidor',
     items: [
-      { id: 'files', label: 'Files', icon: 'files', href: '/files' },
-      { id: 'backups', label: 'Backups', icon: 'backups', href: '/backups' },
-      { id: 'settings', label: 'Settings', icon: 'settings', href: '/settings' },
+      { id: 'files', label: 'Archivos', icon: 'files', href: '/files' },
+      { id: 'backups', label: 'Copias de Seguridad', icon: 'backups', href: '/backups' },
+      { id: 'settings', label: 'Configuración', icon: 'settings', href: '/settings' },
     ],
   },
 ]
 
-// Flat list for title lookups
+// Lista aplanada para consulta de títulos
 export const navItems: NavItem[] = navGroups.flatMap((g) => g.items)
 
-// ── Page Metadata ──────────────────────────────────────────
+// ── Subtítulos de Página ─────────────────────────────────────
 
 export const pageSubtitles: Record<string, string> = {
-  dashboard: 'Real-time overview of your server status and system resources',
-  console: 'Live log stream and RCON command execution',
-  players: 'Active player monitoring and permission management',
-  files: 'Server configuration file explorer and editor',
-  backups: 'Create, restore, and synchronize backups with Google Drive',
-  settings: 'Game rules, memory allocation, and server properties',
-  users: 'Panel user management and permissions',
+  dashboard: 'Vista en tiempo real del estado del servidor y recursos del sistema',
+  console: 'Transmisión de registros en vivo y ejecución de comandos RCON',
+  players: 'Monitoreo de jugadores conectados, inventarios y permisos',
+  files: 'Explorador y editor de archivos de configuración del servidor',
+  backups: 'Crear, restaurar y sincronizar copias de seguridad con Google Drive',
+  settings: 'Reglas del mundo, asignación de memoria y propiedades del servidor',
+  users: 'Administración de usuarios y niveles de acceso del panel',
 }
 
-// ── Settings ───────────────────────────────────────────────
+// ── Reglas y Ajustes del Mundo ──────────────────────────────
 
 export type SettingGroup = {
   group: string
@@ -76,31 +75,31 @@ export type SettingGroup = {
 
 export const settingGroups: SettingGroup[] = [
   {
-    group: 'Access & Security',
+    group: 'Acceso y Seguridad',
     items: [
-      { id: 'whitelist', label: 'Whitelist', description: 'Only approved players may join', enabled: true },
-      { id: 'cracked', label: 'Cracked Mode', description: 'Allow non-premium (offline) accounts', enabled: false },
-      { id: 'flight', label: 'Allow Flight', description: 'Permit flying without being kicked', enabled: false },
-      { id: 'secureprofile', label: 'Enforce Secure Profile', description: 'Require valid public keys for chat signatures', enabled: true },
+      { id: 'whitelist', label: 'Lista Blanca (Whitelist)', description: 'Solo los jugadores autorizados pueden ingresar al servidor', enabled: true },
+      { id: 'cracked', label: 'Modo No-Premium (Offline)', description: 'Permitir conexiones de jugadores sin cuenta oficial de Mojang', enabled: false },
+      { id: 'flight', label: 'Permitir Vuelo', description: 'Permitir que los jugadores vuelen sin ser expulsados', enabled: false },
+      { id: 'secureprofile', label: 'Exigir Perfil Seguro', description: 'Requerir firmas criptográficas válidas en el chat de los jugadores', enabled: true },
     ],
   },
   {
-    group: 'Gameplay',
+    group: 'Reglas de Juego',
     items: [
-      { id: 'pvp', label: 'PVP', description: 'Allow player versus player combat', enabled: true },
-      { id: 'hardcore', label: 'Hardcore Mode', description: 'Players cannot respawn after dying', enabled: false },
-      { id: 'keepinventory', label: 'Keep Inventory', description: 'Players keep items upon death', enabled: false },
-      { id: 'mobgriefing', label: 'Mob Griefing', description: 'Creepers and Endermen can destroy blocks', enabled: true },
+      { id: 'pvp', label: 'Combate PVP', description: 'Permitir daño y combate entre jugadores en el mundo', enabled: true },
+      { id: 'hardcore', label: 'Modo Hardcore', description: 'Los jugadores no pueden revivir tras morir en el mundo', enabled: false },
+      { id: 'keepinventory', label: 'Conservar Inventario (Keep Inventory)', description: 'Los jugadores mantienen sus ítems al morir', enabled: false },
+      { id: 'mobgriefing', label: 'Destrucción por Criaturas (Mob Griefing)', description: 'Creepers y Endermen pueden alterar o destruir bloques', enabled: true },
     ],
   },
   {
-    group: 'World Generation & Entities',
+    group: 'Generación y Criaturas',
     items: [
-      { id: 'commandblocks', label: 'Command Blocks', description: 'Enable command block execution', enabled: true },
-      { id: 'nether', label: 'Allow Nether', description: 'Players can travel to the Nether', enabled: true },
-      { id: 'mobs', label: 'Spawn Monsters', description: 'Hostile mobs spawn at night', enabled: true },
-      { id: 'animals', label: 'Spawn Animals', description: 'Passive mobs will spawn naturally', enabled: true },
-      { id: 'npcs', label: 'Spawn NPCs', description: 'Villagers will spawn in villages', enabled: true },
+      { id: 'commandblocks', label: 'Bloques de Comandos', description: 'Permitir la ejecución de bloques de comandos en el mundo', enabled: true },
+      { id: 'nether', label: 'Permitir el Nether', description: 'Los jugadores pueden viajar a la dimensión del Nether', enabled: true },
+      { id: 'mobs', label: 'Generar Monstruos', description: 'Las criaturas hostiles aparecen de noche y en lugares oscuros', enabled: true },
+      { id: 'animals', label: 'Generar Animales', description: 'Los animales pacíficos se generan naturalmente en el mundo', enabled: true },
+      { id: 'npcs', label: 'Generar Aldeanos (NPCs)', description: 'Los aldeanos aparecen y comercian en las aldeas', enabled: true },
     ],
   },
 ]

@@ -44,15 +44,15 @@ export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const isWarning = status === 'idle' || status === 'warning'
 
   const defaultLabel = (() => {
-    if (typeof status === 'boolean') return status ? 'Online' : 'Offline'
+    if (typeof status === 'boolean') return status ? 'En línea' : 'Desconectado'
     switch (status) {
-      case 'online': return 'Online'
-      case 'live': return 'Live'
-      case 'streaming': return 'Streaming'
-      case 'offline': return 'Offline'
-      case 'idle': return 'Idle'
-      case 'warning': return 'Warning'
-      default: return 'Offline'
+      case 'online': return 'En línea'
+      case 'live': return 'En vivo'
+      case 'streaming': return 'Transmitiendo'
+      case 'offline': return 'Desconectado'
+      case 'idle': return 'Inactivo'
+      case 'warning': return 'Advertencia'
+      default: return 'Desconectado'
     }
   })()
 

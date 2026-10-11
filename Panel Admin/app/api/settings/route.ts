@@ -111,7 +111,6 @@ export async function GET() {
       ramMax: ramMax,
       javaVer: '21',
       nativeTransport: true,
-      discordUrl: '',
     };
 
     return NextResponse.json(state);
