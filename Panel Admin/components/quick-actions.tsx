@@ -88,7 +88,7 @@ export function QuickActions({ role }: { role?: string | null }) {
   }
 
   return (
-    <div className={cn("glass grid gap-6 rounded-3xl p-5", role === 'MODERATOR' ? 'lg:grid-cols-2' : 'lg:grid-cols-3')}>
+    <div className={cn("glass grid gap-6 rounded-3xl p-5 animate-enter", role === 'MODERATOR' ? 'lg:grid-cols-2' : 'lg:grid-cols-3')}>
       {/* Power Controls */}
       {role !== 'MODERATOR' && (
         <div>
@@ -107,7 +107,7 @@ export function QuickActions({ role }: { role?: string | null }) {
                   disabled={!!actionLoading}
                   onClick={() => handleServerAction(a.id)}
                   className={cn(
-                    'flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed',
+                    'tactile-btn flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed',
                     a.tone === 'destructive'
                       ? 'border-destructive/30 bg-destructive/10 text-rose-300 hover:bg-destructive/20'
                       : a.tone === 'emerald'
@@ -145,10 +145,10 @@ export function QuickActions({ role }: { role?: string | null }) {
                 onClick={() => setServerTime(a.id)}
                 aria-pressed={isActive ? 'true' : 'false'}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-4 text-xs font-medium transition-all active:scale-95',
+                  'tactile-btn flex flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-4 text-xs font-medium',
                   isActive
-                    ? 'neon-ring border-primary/50 bg-primary/25 text-end-stone'
-                    : 'border-border bg-white/5 text-muted-foreground hover:text-foreground',
+                    ? 'border-primary/50 bg-primary/25 text-end-stone shadow-[0_0_12px_rgba(98,6,191,0.25)]'
+                    : 'border-border/60 bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/[0.08]',
                 )}
               >
                 <a.icon className="size-5" />
@@ -176,10 +176,10 @@ export function QuickActions({ role }: { role?: string | null }) {
                 onClick={() => setServerWeather(a.id)}
                 aria-pressed={isActive ? 'true' : 'false'}
                 className={cn(
-                  'flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition-all active:scale-95',
+                  'tactile-btn flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium',
                   isActive
-                    ? 'neon-ring border-primary/50 bg-primary/25 text-end-stone'
-                    : 'border-border bg-white/5 text-muted-foreground hover:text-foreground',
+                    ? 'border-primary/50 bg-primary/25 text-end-stone shadow-[0_0_12px_rgba(98,6,191,0.25)]'
+                    : 'border-border/60 bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/[0.08]',
                 )}
               >
                 <a.icon className="size-5" />

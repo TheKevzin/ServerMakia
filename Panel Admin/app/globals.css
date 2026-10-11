@@ -131,6 +131,13 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(139, 47, 224, 0.45) rgba(10, 8, 48, 0.5);
   }
+  ::selection {
+    background-color: rgba(139, 47, 224, 0.55);
+    color: #f4f0ff;
+  }
+  input, textarea {
+    caret-color: var(--end-stone);
+  }
   html {
     @apply font-sans;
     background-color: #0a0830;
@@ -249,5 +256,52 @@
   @keyframes shimmer {
     100% { transform: translateX(100%); }
   }
+
+  /* Emil Kowalski tactile press feedback */
+  .tactile-btn {
+    transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  }
+  .tactile-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Natural staggered entry animation */
+  @keyframes enter-subtle {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.99);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-enter {
+    animation: enter-subtle 280ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+  .animate-enter-1 { animation-delay: 35ms; }
+  .animate-enter-2 { animation-delay: 70ms; }
+  .animate-enter-3 { animation-delay: 105ms; }
+  .animate-enter-4 { animation-delay: 140ms; }
+  .animate-enter-5 { animation-delay: 175ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-enter,
+    .animate-enter-1,
+    .animate-enter-2,
+    .animate-enter-3,
+    .animate-enter-4,
+    .animate-enter-5,
+    .animate-shake {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .tactile-btn:active {
+      transform: none !important;
+    }
+  }
 }
+
 

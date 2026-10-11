@@ -4,44 +4,14 @@ import { cn } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 import { ShieldCheck, Swords, Unlock, type LucideIcon } from 'lucide-react'
 
+import { Toggle } from '@/components/ui/toggle'
+
 type Setting = {
   id: string
   label: string
   description: string
   icon: LucideIcon
   enabled: boolean
-}
-
-function Toggle({
-  enabled,
-  onChange,
-  label,
-}: {
-  enabled: boolean
-  onChange: () => void
-  label: string
-}) {
-  return (
-    <button
-      role="switch"
-      aria-checked={enabled ? 'true' : 'false'}
-      aria-label={label}
-      onClick={onChange}
-      className={cn(
-        'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors',
-        enabled
-          ? 'neon-ring border-primary/50 bg-primary'
-          : 'border-border bg-white/10',
-      )}
-    >
-      <span
-        className={cn(
-          'inline-block size-4 transform rounded-full bg-foreground shadow-sm transition-transform',
-          enabled ? 'translate-x-6' : 'translate-x-1',
-        )}
-      />
-    </button>
-  )
 }
 
 export function ServerSettings() {
@@ -105,18 +75,18 @@ export function ServerSettings() {
   }
 
   return (
-    <div className="glass flex flex-col rounded-3xl">
-      <div className="border-b border-border p-5">
+    <div className="glass animate-enter flex flex-col rounded-3xl overflow-hidden">
+      <div className="border-b border-border/50 p-5">
         <h2 className="font-heading text-sm font-semibold text-foreground">
           Server Settings
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground/80 mt-0.5">
           Some changes apply on next restart
         </p>
       </div>
-      <ul className="divide-y divide-border">
+      <ul className="divide-y divide-border/40">
         {settings.map((s) => (
-          <li key={s.id} className="flex items-center gap-4 px-5 py-4">
+          <li key={s.id} className="flex items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary/20 text-end-stone">
               <s.icon className="size-4.5" />
             </div>
@@ -125,7 +95,7 @@ export function ServerSettings() {
               <p className="text-xs text-muted-foreground">{s.description}</p>
             </div>
             <Toggle
-              enabled={s.enabled}
+              checked={s.enabled}
               onChange={() => toggle(s.id)}
               label={s.label}
             />

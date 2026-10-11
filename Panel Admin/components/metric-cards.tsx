@@ -159,11 +159,17 @@ export function MetricCards() {
       {metrics.map((m, i) => (
         <div
           key={m.label}
-          className="glass group flex flex-col justify-between gap-3 rounded-3xl p-5 transition-all duration-300 hover:border-primary/60 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(98,6,191,0.15)]"
+          className={cn(
+            'glass group flex flex-col justify-between gap-3 rounded-3xl p-5',
+            'transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_8px_25px_rgba(98,6,191,0.18)]',
+            i === 0 && 'animate-enter animate-enter-1',
+            i === 1 && 'animate-enter animate-enter-2',
+            i === 2 && 'animate-enter animate-enter-3',
+          )}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-primary/25 text-end-stone group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-primary/25 text-end-stone group-hover:scale-105 transition-transform duration-200 ease-out">
                 <m.icon className="size-4.5" />
               </div>
               <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
@@ -192,10 +198,10 @@ export function MetricCards() {
       ))}
 
       {/* Uptime card */}
-      <div className="glass group flex flex-col justify-between gap-3 rounded-3xl p-5 transition-all duration-300 hover:border-primary/60 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(98,6,191,0.15)]">
+      <div className="glass group flex flex-col justify-between gap-3 rounded-3xl p-5 transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_8px_25px_rgba(98,6,191,0.18)] animate-enter animate-enter-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-primary/25 text-end-stone group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-primary/25 text-end-stone group-hover:scale-105 transition-transform duration-200 ease-out">
               <Clock className="size-4.5" />
             </div>
             <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">

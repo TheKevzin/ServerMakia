@@ -35,7 +35,7 @@ export function PlayersTable({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: `kick ${name} Kicked by admin` })
     })
-    setPlayers((prev) => prev.filter((x) => x.name !== name))
+    refresh()
   }
 
   const banPlayer = async (name: string) => {
@@ -44,7 +44,7 @@ export function PlayersTable({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: `ban ${name} Banned by admin` })
     })
-    setPlayers((prev) => prev.filter((x) => x.name !== name))
+    refresh()
   }
 
   const changeRole = async (name: string, newRole: Player['role']) => {
@@ -53,7 +53,7 @@ export function PlayersTable({
     } else {
       await fetch('/api/server/rcon', { method: 'POST', body: JSON.stringify({ command: `deop ${name}` }) })
     }
-    setPlayers(prev => prev.map(p => p.name === name ? { ...p, role: newRole } : p))
+    refresh()
   }
 
   const filtered = players.filter((p) =>
@@ -61,8 +61,8 @@ export function PlayersTable({
   )
 
   return (
-    <div className={cn("glass flex flex-col rounded-3xl overflow-hidden", className)}>
-      <div className="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className={cn("glass animate-enter flex flex-col rounded-3xl overflow-hidden", className)}>
+      <div className="flex flex-col gap-3 border-b border-border/50 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <h2 className="font-heading text-sm font-semibold text-foreground">
             Online Players
@@ -77,13 +77,13 @@ export function PlayersTable({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search players..."
-            className="w-full rounded-xl border border-border bg-white/5 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 sm:w-56"
+            className="w-full rounded-xl border border-border/60 bg-white/5 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/40 sm:w-56 transition-colors"
           />
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-[16rem] max-h-[22rem] custom-scrollbar">
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-border/40">
           {filtered.map((p) => (
             <li
               key={p.id}
@@ -95,7 +95,7 @@ export function PlayersTable({
                 }
               }}
               className={cn(
-                "group flex items-center gap-4 px-5 py-3.5 transition-all cursor-pointer hover:bg-white/[0.06] select-none",
+                "group flex items-center gap-4 px-5 py-3.5 transition-[background-color,transform] duration-150 ease-out cursor-pointer hover:bg-white/[0.06] active:scale-[0.99] select-none",
                 !p.isActive && "opacity-50 grayscale hover:opacity-80"
               )}
               title="Click to view player stats & inventory"

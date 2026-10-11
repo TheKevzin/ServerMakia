@@ -73,21 +73,24 @@ export function Sidebar({
                     href={item.href}
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
-                      'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out',
+                      'group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform,box-shadow] duration-150 ease-out active:scale-[0.98]',
                       isActive
-                        ? 'neon-ring bg-primary/25 text-end-stone shadow-[0_0_20px_rgba(98,6,191,0.3)]'
-                        : 'text-sidebar-foreground hover:bg-white/5 hover:text-foreground hover:scale-105 active:scale-95 hover:shadow-lg',
+                        ? 'border border-primary/40 bg-primary/20 text-end-stone shadow-[0_0_16px_rgba(98,6,191,0.25)]'
+                        : 'text-sidebar-foreground hover:bg-white/[0.06] hover:text-foreground',
                     )}
                   >
+                    {isActive && (
+                      <span className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-end-stone shadow-[0_0_8px_var(--end-stone)]" />
+                    )}
                     <Icon
                       className={cn(
-                        'size-5 shrink-0 transition-colors',
+                        'size-4.5 shrink-0 transition-colors duration-150',
                         isActive
-                          ? 'text-end-stone'
+                          ? 'text-end-stone drop-shadow-[0_0_6px_rgba(225,242,189,0.4)]'
                           : 'text-muted-foreground group-hover:text-foreground',
                       )}
                     />
-                    <span className="hidden lg:inline">{item.label}</span>
+                    <span className="hidden lg:inline tracking-tight">{item.label}</span>
                   </Link>
                 )
               })}
@@ -109,7 +112,11 @@ export function Sidebar({
             </p>
           </div>
         </div>
-        <button onClick={handleLogout} className="shrink-0 p-1 text-muted-foreground hover:text-rose-400 transition-colors" title="Sign out">
+        <button
+          onClick={handleLogout}
+          className="tactile-btn shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-white/5 hover:text-rose-400"
+          title="Sign out"
+        >
           <LogOut className="size-4" />
         </button>
       </div>
