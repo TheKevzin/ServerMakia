@@ -1,0 +1,5 @@
+export { GeneralTab } from './general-tab'
+export { WorldRulesTab } from './world-rules-tab'
+export { PerformanceTab } from './performance-tab'
+export { IntegrationsTab } from './integrations-tab'
+export { DangerZoneTab } from './danger-zone-tab'

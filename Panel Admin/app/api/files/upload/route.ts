@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
 
-const SERVER_DIR = path.resolve(process.cwd(), '../server');
+import { SERVER_DIR } from '@/lib/server-config';
 
 export async function POST(req: Request) {
   try {

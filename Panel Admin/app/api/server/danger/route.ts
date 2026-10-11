@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { ServerManager } from '@/lib/server-manager';
 
-const SERVER_DIR = path.resolve(process.cwd(), '../server');
+import { SERVER_DIR } from '@/lib/server-config';
 
 export async function POST(req: Request) {
   try {

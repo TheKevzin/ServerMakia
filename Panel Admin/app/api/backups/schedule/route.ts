@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { exec } from 'child_process';
 
-const SERVER_DIR = path.resolve(process.cwd(), '../server');
+import { SERVER_DIR } from '@/lib/server-config';
 const SCRIPT_PATH = path.join(SERVER_DIR, 'auto-backup.sh');
 
 export async function POST(req: Request) {

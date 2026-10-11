@@ -2,18 +2,11 @@
 
 import { cn } from '@/lib/utils'
 import { useState, useEffect } from 'react'
-import { Wifi, LogOut, Search, Ban } from 'lucide-react'
+import { Wifi, Search, ChevronRight } from 'lucide-react'
+import { type Player } from '@/types'
+import { PlayerProfileModal } from '@/components/player-profile-modal'
 
-
-export type Player = {
-  id: string
-  name: string
-  avatar: string
-  role: 'Member' | 'Mod' | 'Admin'
-  playtime: string
-  latency: number
-  isActive?: boolean
-}
+export type { Player }
 
 function latencyColor(ms: number) {
   if (ms < 60) return 'text-emerald-300'
@@ -21,36 +14,20 @@ function latencyColor(ms: number) {
   return 'text-rose-300'
 }
 
-function roleBadge(role: Player['role']) {
-  switch (role) {
-    case 'Admin':
-      return 'bg-primary/25 text-end-stone border-primary/40'
-    case 'Mod':
-      return 'bg-[#b06bf0]/20 text-[#d8b8f7] border-[#b06bf0]/30'
-    default:
-      return 'bg-white/5 text-muted-foreground border-border'
-  }
-}
+import { usePlayers } from '@/lib/hooks'
 
-export function PlayersTable({ className, role }: { className?: string; role?: string | null }) {
-  const [players, setPlayers] = useState<Player[]>([])
+export function PlayersTable({
+  className,
+  role,
+  onSelectPlayer,
+}: {
+  className?: string
+  role?: string | null
+  onSelectPlayer?: (playerName: string) => void
+}) {
+  const { players, refresh } = usePlayers(5000)
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
   const [query, setQuery] = useState('')
-
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      try {
-        const res = await fetch('/api/server/players')
-        const data = await res.json()
-        if (data.players) {
-          setPlayers(data.players)
-        }
-      } catch (e) {}
-    }
-
-    const interval = setInterval(fetchPlayers, 3000)
-    fetchPlayers()
-    return () => clearInterval(interval)
-  }, [])
 
   const kickPlayer = async (name: string) => {
     await fetch('/api/server/rcon', {
@@ -110,16 +87,27 @@ export function PlayersTable({ className, role }: { className?: string; role?: s
           {filtered.map((p) => (
             <li
               key={p.id}
-              className={cn("flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-white/[0.03]", !p.isActive && "opacity-50 grayscale")}
+              onClick={() => {
+                if (onSelectPlayer) {
+                  onSelectPlayer(p.name)
+                } else {
+                  setSelectedPlayer(p)
+                }
+              }}
+              className={cn(
+                "group flex items-center gap-4 px-5 py-3.5 transition-all cursor-pointer hover:bg-white/[0.06] select-none",
+                !p.isActive && "opacity-50 grayscale hover:opacity-80"
+              )}
+              title="Click to view player stats & inventory"
             >
               <img
                 src={p.avatar || '/placeholder.svg'}
                 alt={`${p.name} avatar`}
-                className="size-10 shrink-0 rounded-xl border border-border object-cover"
+                className="size-10 shrink-0 rounded-xl border border-border object-cover group-hover:border-primary/40 transition-colors"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">
+                  <p className="truncate text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                     {p.name}
                   </p>
                 </div>
@@ -128,23 +116,36 @@ export function PlayersTable({ className, role }: { className?: string; role?: s
                 </p>
               </div>
 
-              {p.isActive && (
-                <div className="hidden items-center gap-1.5 sm:flex">
-                  <Wifi className={cn('size-4', latencyColor(p.latency))} />
-                  <span className={cn('text-sm tabular-nums', latencyColor(p.latency))}>
-                    {p.latency}ms
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                {p.isActive ? (
+                  <div className="flex items-center gap-1.5">
+                    <Wifi className={cn('size-4', latencyColor(p.latency))} />
+                    <span className={cn('text-sm tabular-nums', latencyColor(p.latency))}>
+                      {p.latency}ms
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">Offline</span>
+                )}
+                <ChevronRight className="size-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
             </li>
           ))}
           {filtered.length === 0 && (
             <li className="px-5 py-10 text-center text-sm text-muted-foreground">
-              No players online.
+              No players found.
             </li>
           )}
         </ul>
       </div>
+
+      {selectedPlayer && (
+        <PlayerProfileModal
+          player={players.find((p) => p.id === selectedPlayer.id) || selectedPlayer}
+          onClose={() => setSelectedPlayer(null)}
+          onKick={kickPlayer}
+        />
+      )}
     </div>
   )
 }

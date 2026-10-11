@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
 import { exec } from 'child_process';
+import util from 'util';
 import { uploadAndManageDrive } from '@/lib/drive';
 
-const SERVER_DIR = path.resolve(process.cwd(), '../server');
+const execAsync = util.promisify(exec);
+
+import { SERVER_DIR } from '@/lib/server-config';
 const BACKUPS_DIR = path.resolve(process.cwd(), '../backups');
 const LOCK_FILE = path.join(BACKUPS_DIR, '.backup-in-progress');
 
@@ -13,6 +16,34 @@ function formatSize(bytes: number) {
   if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
   if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
   return (bytes / 1073741824).toFixed(2) + ' GB';
+}
+
+// In-memory cache for Google Drive listing (45s TTL)
+let cachedDriveBackups: { name: string; size: number; mtime: number }[] = [];
+let lastDriveCheck = 0;
+
+async function getDriveBackups() {
+  const now = Date.now();
+  if (now - lastDriveCheck < 45000 && cachedDriveBackups.length > 0) {
+    return cachedDriveBackups;
+  }
+  try {
+    const { stdout } = await execAsync('rclone lsjson "gdrive:Backups Servidor" --timeout 4s');
+    const items = JSON.parse(stdout);
+    if (Array.isArray(items)) {
+      cachedDriveBackups = items
+        .filter((it: any) => it.Name && it.Name.endsWith('.tar.gz'))
+        .map((it: any) => ({
+          name: it.Name,
+          size: it.Size || 0,
+          mtime: it.ModTime ? new Date(it.ModTime).getTime() : now,
+        }));
+      lastDriveCheck = now;
+    }
+  } catch (err) {
+    // If rclone fails or times out, return existing cache
+  }
+  return cachedDriveBackups;
 }
 
 export async function GET() {
@@ -27,44 +58,102 @@ export async function GET() {
       try { creatingName = fs.readFileSync(LOCK_FILE, 'utf-8').trim(); } catch {}
     }
 
-    const files = fs.readdirSync(BACKUPS_DIR)
-      .filter(f => f.endsWith('.tar.gz'))
-      .map(f => {
-        const fullPath = path.join(BACKUPS_DIR, f);
-        const stats = fs.statSync(fullPath);
-        const isManual = f.includes('manual');
-        const isThisCreating = isCreating && f === creatingName;
-        return {
-          id: f,
-          name: f.replace('.tar.gz', ''),
-          size: formatSize(stats.size),
-          date: stats.mtime.toLocaleString('en-US', {
-            month: 'short', day: 'numeric', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-          }),
-          type: isManual ? 'Manual' : 'Auto',
-          status: isThisCreating ? 'Creating' as const : 'Completed' as const,
-        };
-      })
-      .sort((a, b) => {
-        const statsA = fs.statSync(path.join(BACKUPS_DIR, a.id));
-        const statsB = fs.statSync(path.join(BACKUPS_DIR, b.id));
-        return statsB.mtime.getTime() - statsA.mtime.getTime();
-      });
+    // 1. Get Google Drive items (cached)
+    const driveItems = await getDriveBackups();
+    const driveMap = new Map<string, { size: number; mtime: number }>();
+    for (const d of driveItems) {
+      driveMap.set(d.name, d);
+    }
 
-    // Calculate total storage used
+    // 2. Get local items
+    const localFiles = fs.readdirSync(BACKUPS_DIR).filter(f => f.endsWith('.tar.gz'));
+    const allNames = Array.from(new Set([...localFiles, ...driveMap.keys()]));
+
+    // 3. Build unified backups list
+    const backupsList = allNames.map(f => {
+      const localPath = path.join(BACKUPS_DIR, f);
+      const isLocal = fs.existsSync(localPath);
+      const isCloud = driveMap.has(f);
+
+      let sizeBytes = 0;
+      let mtimeMs = 0;
+
+      if (isLocal) {
+        try {
+          const stats = fs.statSync(localPath);
+          sizeBytes = stats.size;
+          mtimeMs = stats.mtime.getTime();
+        } catch {}
+      } else if (isCloud) {
+        sizeBytes = driveMap.get(f)!.size;
+        mtimeMs = driveMap.get(f)!.mtime;
+      }
+
+      const isManual = f.includes('manual');
+      const isThisCreating = isCreating && f === creatingName;
+      const mtimeDate = new Date(mtimeMs || Date.now());
+
+      let location = 'Local';
+      if (isLocal && isCloud) location = 'Local & Cloud';
+      else if (!isLocal && isCloud) location = 'Google Drive';
+
+      return {
+        id: f,
+        name: f.replace('.tar.gz', ''),
+        size: formatSize(sizeBytes),
+        bytes: sizeBytes,
+        mtime: mtimeMs,
+        date: mtimeDate.toLocaleString('en-US', {
+          timeZone: 'America/Bogota',
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit',
+          hour12: true
+        }),
+        type: isManual ? ('Manual' as const) : ('Auto' as const),
+        status: isThisCreating ? ('Creating' as const) : ('Completed' as const),
+        location,
+        isLocal,
+        isCloud,
+      };
+    }).sort((a, b) => b.mtime - a.mtime);
+
+    // 4. Calculate total storage across all backups
     let totalBytes = 0;
-    for (const f of files) {
-      const stats = fs.statSync(path.join(BACKUPS_DIR, f.id));
-      totalBytes += stats.size;
+    for (const b of backupsList) {
+      totalBytes += b.bytes;
+    }
+
+    // 5. Calculate host disk space ("la torre")
+    let diskFreeFormatted = '';
+    let diskTotalFormatted = '';
+    let diskUsedPercent = 0;
+    let diskFreeBytes = 0;
+    let diskTotalBytes = 0;
+
+    try {
+      if (typeof (fs as any).statfsSync === 'function') {
+        const s = (fs as any).statfsSync(BACKUPS_DIR);
+        diskFreeBytes = Number(s.bavail) * Number(s.bsize);
+        diskTotalBytes = Number(s.blocks) * Number(s.bsize);
+        diskFreeFormatted = formatSize(diskFreeBytes);
+        diskTotalFormatted = formatSize(diskTotalBytes);
+        diskUsedPercent = diskTotalBytes > 0 ? Math.round(((diskTotalBytes - diskFreeBytes) / diskTotalBytes) * 100) : 0;
+      }
+    } catch (e) {
+      // fallback
     }
 
     return NextResponse.json({
-      backups: files,
+      backups: backupsList,
       stats: {
-        total: files.length,
+        total: backupsList.length,
         storageUsed: formatSize(totalBytes),
-        lastBackup: files.length > 0 ? files[0].date : 'Never',
+        lastBackup: backupsList.length > 0 ? backupsList[0].date : 'Never',
+        localCount: localFiles.length,
+        cloudCount: driveMap.size,
+        diskFree: diskFreeFormatted,
+        diskTotal: diskTotalFormatted,
+        diskUsedPercent,
       }
     });
   } catch (e: any) {
@@ -85,7 +174,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'A backup is already in progress' }, { status: 409 });
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+    const p = (type: string) => parts.find(x => x.type === type)?.value || '00';
+    const timestamp = `${p('year')}-${p('month')}-${p('day')}_${p('hour')}-${p('minute')}-${p('second')}`;
     const backupName = name ? `manual-${name}-${timestamp}` : `manual-${timestamp}`;
     const backupFileName = `${backupName}.tar.gz`;
     const backupFile = path.join(BACKUPS_DIR, backupFileName);
@@ -93,9 +189,7 @@ export async function POST(req: Request) {
     // Write lock file with the backup filename
     fs.writeFileSync(LOCK_FILE, backupFileName);
 
-    // Only backup world data and essential configs (not the entire server)
-    // World folders contain the irreplaceable player progress and builds
-    // Config files are small but important for server identity
+    // Elements to backup
     const includes = [
       './world',
       './config',
@@ -115,25 +209,34 @@ export async function POST(req: Request) {
 
       if (error) {
         console.error('[Backup] tar failed:', error.message);
-        // Clean up the partial file
         try { if (fs.existsSync(backupFile)) fs.unlinkSync(backupFile); } catch {}
         return;
       }
 
-      // Enforce 3 local backups max
+      // Safe local retention: keep up to 30 backups locally (or based on auto-backup.sh configuration)
+      let maxBackups = 30;
+      try {
+        const scriptPath = path.resolve(SERVER_DIR, 'auto-backup.sh');
+        if (fs.existsSync(scriptPath)) {
+          const match = fs.readFileSync(scriptPath, 'utf-8').match(/MAX_BACKUPS=([0-9]+)/);
+          if (match) maxBackups = Math.max(20, parseInt(match[1], 10));
+        }
+      } catch {}
+
       const files = fs.readdirSync(BACKUPS_DIR)
         .filter(f => f.endsWith('.tar.gz'))
         .map(f => ({ name: f, time: fs.statSync(path.join(BACKUPS_DIR, f)).mtime.getTime() }))
         .sort((a, b) => b.time - a.time);
 
-      if (files.length > 3) {
-        for (let i = 3; i < files.length; i++) {
-          fs.unlinkSync(path.join(BACKUPS_DIR, files[i].name));
+      if (files.length > maxBackups) {
+        for (let i = maxBackups; i < files.length; i++) {
+          try { fs.unlinkSync(path.join(BACKUPS_DIR, files[i].name)); } catch {}
         }
       }
 
       // Trigger Google Drive upload via rclone (5 TB personal Google Drive) with fallback
       exec(`rclone copy "${backupFile}" "gdrive:Backups Servidor" --drive-chunk-size 64M`, (rErr) => {
+        lastDriveCheck = 0; // Invalidate drive cache
         if (!rErr) {
           console.log('[Drive] Backup subido exitosamente a Google Drive (5 TB) vía rclone.');
         } else {
@@ -172,16 +275,23 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
+
+    if (!id || !id.endsWith('.tar.gz') || id.includes('..') || id.includes('/') || id.includes('\\')) {
+      return NextResponse.json({ error: 'Invalid backup ID' }, { status: 400 });
+    }
+
     const filePath = path.join(BACKUPS_DIR, id);
 
-    // Security check
-    if (!filePath.startsWith(BACKUPS_DIR) || !id.endsWith('.tar.gz')) {
-      return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+    if (fs.existsSync(filePath)) {
+      try { fs.unlinkSync(filePath); } catch {}
     }
 
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    // Also delete from Google Drive
+    try {
+      exec(`rclone deletefile "gdrive:Backups Servidor/${id}"`);
+    } catch {}
+
+    lastDriveCheck = 0; // Invalidate drive cache
 
     return NextResponse.json({ success: true });
   } catch (e: any) {

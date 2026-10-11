@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { type ConsoleLine } from '@/lib/data'
+import { type ConsoleLine } from '@/types'
 import { useEffect, useRef, useState, KeyboardEvent } from 'react'
 import { 
   ChevronRight, Trash2, Download, Save, RefreshCw, Power, 
@@ -9,6 +9,7 @@ import {
   CloudRain, CloudLightning, Clock, MoonStar, ChevronDown, MonitorPlay, Database, Gauge
 } from 'lucide-react'
 import { StatusBadge } from '@/components/status-badge'
+import { useServerLogs, useServerStatus } from '@/lib/hooks'
 
 type Level = 'ALL' | 'INFO' | 'WARN' | 'ERROR'
 
@@ -73,27 +74,27 @@ function parseLogLine(text: string): ConsoleLine {
   if (text.includes('ERROR') || text.includes('Exception') || text.includes('Failed')) level = 'ERROR'
   
   const timeMatch = text.match(/\[(\d{2}:\d{2}:\d{2})\]/)
-  const time = timeMatch ? timeMatch[1] : new Date().toLocaleTimeString('en-GB', { hour12: false })
+  const time = timeMatch ? timeMatch[1] : new Date().toLocaleTimeString('en-GB', { hour12: false, timeZone: 'America/Bogota' })
   
   return { time, level, text }
 }
 
+
 // ─── MAIN VIEW ─────────────────────────────────────────────────────────────────
 
 export function ConsoleView({ role }: { role?: string | null }) {
-  const [lines, setLines] = useState<ConsoleLine[]>([])
+  const { lines, isStreaming, clearLogs, addCustomLine } = useServerLogs(500)
+  const { isRunning } = useServerStatus()
   const [command, setCommand] = useState('')
   const [filter, setFilter] = useState<Level>('ALL')
-  const [isRunning, setIsRunning] = useState(false)
   const [metrics, setMetrics] = useState({ cpu: '0.0', ram: '0.0', tps: '20.0' })
   const scrollRef = useRef<HTMLDivElement>(null)
-  const clearedLogsCache = useRef<Set<string>>(new Set())
 
-  const clearLogs = () => {
-    setLines(prev => {
-      prev.forEach(l => clearedLogsCache.current.add(l.text))
-      return []
-    })
+  const counts = {
+    ALL: lines.length,
+    INFO: lines.filter((l) => l.level === 'INFO').length,
+    WARN: lines.filter((l) => l.level === 'WARN').length,
+    ERROR: lines.filter((l) => l.level === 'ERROR').length,
   }
 
   const exportLogs = () => {
@@ -102,7 +103,8 @@ export function ConsoleView({ role }: { role?: string | null }) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `server-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.log`
+    const bogotaDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date())
+    a.download = `server-logs-${bogotaDateStr}.log`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -114,35 +116,11 @@ export function ConsoleView({ role }: { role?: string | null }) {
   const filtered = filter === 'ALL' ? lines : lines.filter((l) => l.level === filter)
 
   useEffect(() => {
-    // Polling para Logs
-    const fetchLogs = async () => {
-      try {
-        const res = await fetch('/api/server/logs')
-        const data = await res.json()
-        if (data.logs && data.logs.length > 0) {
-          setLines(prev => {
-            const newParsed = data.logs.map(parseLogLine).filter((l: ConsoleLine) => !clearedLogsCache.current.has(l.text))
-            
-            // Check if there are truly new lines to add before triggering a re-render
-            const existingTextSet = new Set(prev.map(p => p.text))
-            const actuallyNew = newParsed.filter((l: ConsoleLine) => !existingTextSet.has(l.text))
-            
-            if (actuallyNew.length === 0) return prev
-            return [...prev, ...actuallyNew].slice(-500)
-          })
-        }
-      } catch (err) {}
-    }
-
-    fetchLogs()
-    const logsInterval = setInterval(fetchLogs, 2000)
-    
-    // Polling de Status
-    const fetchStatus = () => {
+    // Polling solo para metricas del sistema (TPS, CPU, RAM)
+    const fetchMetrics = () => {
       fetch('/api/server/status')
         .then((res) => res.json())
         .then((data) => {
-          setIsRunning(data.isRunning)
           if (data.metrics) {
             setMetrics({
               cpu: data.metrics.cpu,
@@ -151,15 +129,12 @@ export function ConsoleView({ role }: { role?: string | null }) {
             })
           }
         })
+        .catch(() => {})
     }
 
-    fetchStatus()
-    const statusInterval = setInterval(fetchStatus, 5000)
-
-    return () => {
-      clearInterval(logsInterval)
-      clearInterval(statusInterval)
-    }
+    fetchMetrics()
+    const interval = setInterval(fetchMetrics, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -171,11 +146,7 @@ export function ConsoleView({ role }: { role?: string | null }) {
   const send = async (cmd: string) => {
     if (!cmd.trim()) return
     
-    const now = new Date().toLocaleTimeString('en-GB', { hour12: false })
-    setLines((prev) => [
-      ...prev,
-      { time: now, level: 'INFO', text: `<console> issued command: /${cmd}` },
-    ])
+    addCustomLine(`<console> issued command: /${cmd}`, 'INFO')
 
     if (cmd === 'stop-process') {
       fetch('/api/server/stop', { method: 'POST' })
@@ -190,11 +161,7 @@ export function ConsoleView({ role }: { role?: string | null }) {
       .then(res => res.json())
       .then(data => {
         if (data.success && typeof data.response === 'string' && data.response.trim().length > 0) {
-          setLines(prev => [...prev, { 
-            time: new Date().toLocaleTimeString('en-GB', { hour12: false }), 
-            level: 'INFO', 
-            text: data.response 
-          }])
+          addCustomLine(data.response, 'INFO')
         }
       })
       .catch(() => {})
@@ -224,12 +191,6 @@ export function ConsoleView({ role }: { role?: string | null }) {
         setCommand('')
       }
     }
-  }
-
-  const counts = {
-    INFO: lines.filter((l) => l.level === 'INFO').length,
-    WARN: lines.filter((l) => l.level === 'WARN').length,
-    ERROR: lines.filter((l) => l.level === 'ERROR').length,
   }
 
   return (
@@ -370,7 +331,17 @@ export function ConsoleView({ role }: { role?: string | null }) {
             <span className="ml-2 font-mono text-sm text-muted-foreground">
               thekevzin@servermakia ~ console
             </span>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              {isStreaming ? (
+                <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/20">
+                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  SSE LIVE
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400 border border-amber-500/20">
+                  POLLING
+                </span>
+              )}
               <StatusBadge status={isRunning ? 'streaming' : 'offline'} />
             </div>
           </div>

@@ -1,51 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Globe, Copy, Check, Wifi, Sparkles, Layers } from 'lucide-react'
+import { useState } from 'react'
+import { Globe, Copy, Check, Wifi, Layers } from 'lucide-react'
 import { StatusBadge } from '@/components/status-badge'
-
-type TunnelInfo = {
-  domain: string
-  directIp: string
-  local: string
-}
+import { useServerStatus } from '@/lib/hooks'
 
 export function ServerConnectionCard() {
-  const [tunnel, setTunnel] = useState<TunnelInfo>({
-    domain: 'carolyn-canine.tun.ply.gg:57814',
-    directIp: '147.185.221.215:57814',
-    local: '192.168.101.10:25565'
-  })
+  const { isRunning, tunnel } = useServerStatus()
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
-  const [isOnline, setIsOnline] = useState<boolean>(true)
-
-  useEffect(() => {
-    const fetchTunnel = async () => {
-      try {
-        const res = await fetch('/api/server/status')
-        const data = await res.json()
-        if (data.tunnel) {
-          setTunnel(prev => {
-            if (
-              prev.domain === data.tunnel.domain &&
-              prev.directIp === data.tunnel.directIp &&
-              prev.local === data.tunnel.local
-            ) {
-              return prev
-            }
-            return data.tunnel
-          })
-        }
-        if (typeof data.isRunning === 'boolean') {
-          setIsOnline(prev => (prev === data.isRunning ? prev : data.isRunning))
-        }
-      } catch (e) {}
-    }
-
-    fetchTunnel()
-    const interval = setInterval(fetchTunnel, 10000)
-    return () => clearInterval(interval)
-  }, [])
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text)
@@ -74,7 +36,7 @@ export function ServerConnectionCard() {
               <span className="text-xs font-bold uppercase tracking-wider text-end-stone">
                 Public Server Address (Minecraft)
               </span>
-              <StatusBadge status={isOnline ? 'online' : 'offline'} />
+              <StatusBadge status={isRunning ? 'online' : 'offline'} />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

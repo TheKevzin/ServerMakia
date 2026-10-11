@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { useState, useEffect } from 'react'
-import { Wifi, LogOut, Search, Ban, Users, Clock, ShieldAlert } from 'lucide-react'
+import { Wifi, LogOut, Search, Ban, Users, Clock, ShieldAlert, ChevronRight } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -10,16 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
-type Player = {
-  id: string
-  name: string
-  avatar: string
-  role: 'Admin' | 'Mod' | 'Member'
-  playtime: string
-  latency: number
-  isActive?: boolean
-}
+import { type Player } from '@/types'
+import { PlayerDetailView } from '@/components/player-detail-view'
 
 type BannedPlayer = {
   uuid: string
@@ -48,33 +40,33 @@ function roleBadge(role: Player['role'], isActive?: boolean) {
   }
 }
 
-export function PlayersView({ role }: { role?: string | null }) {
-  const [players, setPlayers] = useState<Player[]>([])
-  const [bannedPlayers, setBannedPlayers] = useState<BannedPlayer[]>([])
+import { usePlayers } from '@/lib/hooks'
+import useSWR from 'swr'
+import { fetcher } from '@/lib/fetcher'
+
+export function PlayersView({
+  role,
+  initialPlayerName,
+  onClearSelectedPlayer,
+}: {
+  role?: string | null
+  initialPlayerName?: string | null
+  onClearSelectedPlayer?: () => void
+}) {
+  const { players, refresh: refreshPlayers } = usePlayers(5000)
+  const { data: bannedData, mutate: refreshBanned } = useSWR<{ banned: BannedPlayer[] }>(
+    '/api/server/banned',
+    fetcher
+  )
+  const bannedPlayers = bannedData?.banned ?? []
+  const [selectedPlayerName, setSelectedPlayerName] = useState<string | null>(initialPlayerName || null)
   const [query, setQuery] = useState('')
 
   useEffect(() => {
-    const fetchPlayers = async () => {
-      try {
-        const res = await fetch('/api/server/players')
-        const data = await res.json()
-        if (data.players) setPlayers(data.players)
-      } catch (e) {}
+    if (initialPlayerName) {
+      setSelectedPlayerName(initialPlayerName)
     }
-
-    const fetchBanned = async () => {
-      try {
-        const res = await fetch('/api/server/banned')
-        const data = await res.json()
-        if (data.banned) setBannedPlayers(data.banned)
-      } catch (e) {}
-    }
-
-    fetchPlayers()
-    fetchBanned()
-    const interval = setInterval(fetchPlayers, 5000)
-    return () => clearInterval(interval)
-  }, [])
+  }, [initialPlayerName])
 
   const kickPlayer = async (name: string) => {
     await fetch('/api/server/rcon', {
@@ -82,10 +74,7 @@ export function PlayersView({ role }: { role?: string | null }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: `kick ${name} Kicked by admin` })
     })
-    // Re-fetch instantly instead of filtering locally to sync status
-    const res = await fetch('/api/server/players')
-    const data = await res.json()
-    if (data.players) setPlayers(data.players)
+    refreshPlayers()
   }
 
   const banPlayer = async (name: string) => {
@@ -94,17 +83,8 @@ export function PlayersView({ role }: { role?: string | null }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: `ban ${name} Banned by admin` })
     })
-    // Sync status
-    const resPlayers = await fetch('/api/server/players')
-    const dataPlayers = await resPlayers.json()
-    if (dataPlayers.players) setPlayers(dataPlayers.players)
-    
-    // Refresh banned list
-    setTimeout(async () => {
-      const res = await fetch('/api/server/banned')
-      const data = await res.json()
-      if (data.banned) setBannedPlayers(data.banned)
-    }, 1000)
+    refreshPlayers()
+    setTimeout(() => refreshBanned(), 800)
   }
 
   const pardonPlayer = async (name: string) => {
@@ -113,7 +93,7 @@ export function PlayersView({ role }: { role?: string | null }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: `pardon ${name}` })
     })
-    setBannedPlayers(prev => prev.filter(b => b.name !== name))
+    refreshBanned()
   }
 
   const changeRole = async (name: string, newRole: Player['role']) => {
@@ -144,6 +124,19 @@ export function PlayersView({ role }: { role?: string | null }) {
     { label: 'Avg. Latency', value: activePlayers.length > 0 ? Math.round(activePlayers.reduce((a, p) => a + p.latency, 0) / activePlayers.length) + 'ms' : '—', icon: Clock },
     { label: 'Banned', value: String(bannedPlayers.length), icon: ShieldAlert },
   ]
+
+  if (selectedPlayerName) {
+    return (
+      <PlayerDetailView
+        playerName={selectedPlayerName}
+        onBack={() => {
+          setSelectedPlayerName(null)
+          onClearSelectedPlayer?.()
+        }}
+        role={role}
+      />
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -190,16 +183,21 @@ export function PlayersView({ role }: { role?: string | null }) {
           {filtered.map((p) => (
             <li
               key={p.id}
-              className={cn("flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-white/[0.03]", !p.isActive && "opacity-60 grayscale")}
+              onClick={() => setSelectedPlayerName(p.name)}
+              className={cn(
+                "group flex items-center gap-4 px-5 py-3.5 transition-all cursor-pointer hover:bg-white/[0.06] select-none",
+                !p.isActive && "opacity-60 grayscale hover:opacity-85"
+              )}
+              title="Click to view player stats & inventory"
             >
               <img
                 src={p.avatar || '/placeholder.svg'}
                 alt={`${p.name} avatar`}
-                className={cn("size-10 shrink-0 rounded-xl border border-border object-cover", p.isActive && "ring-2 ring-emerald-500/50")}
+                className={cn("size-10 shrink-0 rounded-xl border border-border object-cover group-hover:border-primary/40 transition-colors", p.isActive && "ring-2 ring-emerald-500/50")}
               />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
-                  <p className={cn("truncate text-sm font-medium", p.isActive ? "text-foreground" : "text-muted-foreground")}>
+                  <p className={cn("truncate text-sm font-medium group-hover:text-primary transition-colors", p.isActive ? "text-foreground" : "text-muted-foreground")}>
                     {p.name}
                   </p>
                   {role === 'VIEWER' ? (
@@ -213,7 +211,7 @@ export function PlayersView({ role }: { role?: string | null }) {
                       {p.role}
                     </span>
                   ) : (
-                    <div className="w-max">
+                    <div className="w-max" onClick={(e) => e.stopPropagation()}>
                       <Select value={p.role} onValueChange={(val: string) => changeRole(p.name, val as Player['role'])}>
                         <SelectTrigger disabled={!p.isActive} className={cn(
                           'h-auto w-auto inline-flex appearance-none rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50 text-center',
@@ -249,10 +247,13 @@ export function PlayersView({ role }: { role?: string | null }) {
               </div>
 
               {role !== 'VIEWER' && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   {p.isActive && (
                     <button
-                      onClick={() => kickPlayer(p.name)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        kickPlayer(p.name)
+                      }}
                       className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-300 transition-colors hover:bg-amber-500/20"
                     >
                       <LogOut className="size-3.5" />
@@ -260,7 +261,10 @@ export function PlayersView({ role }: { role?: string | null }) {
                     </button>
                   )}
                   <button
-                    onClick={() => banPlayer(p.name)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      banPlayer(p.name)
+                    }}
                     className="flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-rose-300 transition-colors hover:bg-destructive/20"
                   >
                     <Ban className="size-3.5" />
@@ -268,6 +272,8 @@ export function PlayersView({ role }: { role?: string | null }) {
                   </button>
                 </div>
               )}
+
+              <ChevronRight className="size-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
             </li>
           ))}
           {filtered.length === 0 && (

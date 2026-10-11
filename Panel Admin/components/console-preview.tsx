@@ -115,11 +115,7 @@ export function ConsolePreview({ className }: { className?: string }) {
 
     const handleCustomCommand = (e: CustomEvent) => {
       const msg = e.detail.command
-      const now = new Date()
-      const hh = String(now.getHours()).padStart(2, '0')
-      const mm = String(now.getMinutes()).padStart(2, '0')
-      const ss = String(now.getSeconds()).padStart(2, '0')
-      const timeStr = `${hh}:${mm}:${ss}`
+      const timeStr = new Date().toLocaleTimeString('en-GB', { hour12: false, timeZone: 'America/Bogota' })
 
       setLines(prev => {
         const entry: ConsoleLine = {
@@ -150,11 +146,7 @@ export function ConsolePreview({ className }: { className?: string }) {
     e.preventDefault()
     if (!command.trim() || isSending) return
 
-    const now = new Date()
-    const hh = String(now.getHours()).padStart(2, '0')
-    const mm = String(now.getMinutes()).padStart(2, '0')
-    const ss = String(now.getSeconds()).padStart(2, '0')
-    const timeStr = `${hh}:${mm}:${ss}`
+    const timeStr = new Date().toLocaleTimeString('en-GB', { hour12: false, timeZone: 'America/Bogota' })
     const userCmd = command.trim()
 
     setLines(prev => [

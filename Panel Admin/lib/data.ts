@@ -51,6 +51,7 @@ export type Player = {
   latency: number
   role: 'Admin' | 'Mod' | 'Member'
   playtime: string
+  isActive?: boolean
   // Profile details
   joined: string
   lastSeen: string

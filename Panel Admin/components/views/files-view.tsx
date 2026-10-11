@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { fileTree as fileTreeMock, type FileNode } from '@/lib/data'
+import { type FileNode } from '@/types'
 import { useState, useEffect } from 'react'
 import { Editor } from '@monaco-editor/react'
 import {

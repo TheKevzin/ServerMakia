@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const SERVER_DIR = path.resolve(process.cwd(), '../server');
+import { SERVER_DIR } from '@/lib/server-config';
 const PROPERTIES_FILE = path.join(SERVER_DIR, 'server.properties');
 const START_SCRIPT = path.join(SERVER_DIR, 'start.sh');
 

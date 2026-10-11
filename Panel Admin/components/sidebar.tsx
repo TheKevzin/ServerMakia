@@ -11,9 +11,11 @@ import {
   DatabaseBackup,
   LogOut,
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { navGroups, type NavIcon } from '@/lib/data'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { navGroups, type NavIcon } from '@/lib/constants'
 import { StatusDot } from './status-badge'
+import { useServerStatus } from '@/lib/hooks'
 
 const iconMap: Record<NavIcon, typeof LayoutDashboard> = {
   dashboard: LayoutDashboard,
@@ -22,37 +24,18 @@ const iconMap: Record<NavIcon, typeof LayoutDashboard> = {
   settings: Settings,
   files: FolderTree,
   backups: DatabaseBackup,
+  users: Users,
 }
 
 export function Sidebar({
   active,
-  onNavigate,
   role,
 }: {
   active: string
-  onNavigate: (id: string) => void
-  role: string
+  role: string | null
 }) {
-  const [isRunning, setIsRunning] = useState<boolean>(true)
-
-  useEffect(() => {
-    let mounted = true
-    const check = async () => {
-      try {
-        const res = await fetch('/api/server/status')
-        const data = await res.json()
-        if (mounted && typeof data.isRunning === 'boolean') {
-          setIsRunning(data.isRunning)
-        }
-      } catch (e) {}
-    }
-    check()
-    const id = setInterval(check, 10000)
-    return () => {
-      mounted = false
-      clearInterval(id)
-    }
-  }, [])
+  const { isRunning } = useServerStatus()
+  const pathname = usePathname()
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -85,9 +68,9 @@ export function Sidebar({
                 const Icon = iconMap[item.icon]
                 const isActive = active === item.id
                 return (
-                  <button
+                  <Link
                     key={item.id}
-                    onClick={() => onNavigate(item.id)}
+                    href={item.href}
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out',
@@ -105,7 +88,7 @@ export function Sidebar({
                       )}
                     />
                     <span className="hidden lg:inline">{item.label}</span>
-                  </button>
+                  </Link>
                 )
               })}
             </div>

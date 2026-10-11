@@ -29,7 +29,7 @@ function parseLogLine(text: string): ConsoleLine {
   if (text.includes('WARN')) level = 'WARN'
   if (text.includes('ERROR') || text.includes('Exception') || text.includes('Failed')) level = 'ERROR'
   const timeMatch = text.match(/\[(\d{2}:\d{2}:\d{2})\]/)
-  const time = timeMatch ? timeMatch[1] : new Date().toLocaleTimeString('en-GB', { hour12: false })
+  const time = timeMatch ? timeMatch[1] : new Date().toLocaleTimeString('en-GB', { hour12: false, timeZone: 'America/Bogota' })
   return { time, level, text }
 }
 

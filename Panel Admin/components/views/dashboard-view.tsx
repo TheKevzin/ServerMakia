@@ -7,7 +7,13 @@ import { PlayersTable } from '@/components/players-table'
 import { ServerSettings } from '@/components/server-settings'
 import { ConsolePreview } from '@/components/console-preview'
 
-export function DashboardView({ role }: { role?: string | null }) {
+export function DashboardView({
+  role,
+  onSelectPlayer,
+}: {
+  role?: string | null
+  onSelectPlayer?: (playerName: string) => void
+}) {
   return (
     <div className="flex flex-col gap-6">
       <ServerConnectionCard />
@@ -22,7 +28,7 @@ export function DashboardView({ role }: { role?: string | null }) {
 
         {/* Columna Derecha (Estrecha) */}
         <div className="flex flex-col gap-6 lg:col-span-1 h-full">
-          <PlayersTable className="flex-1" role={role} />
+          <PlayersTable className="flex-1" role={role} onSelectPlayer={onSelectPlayer} />
           {role === 'ADMIN' && <ServerSettings />}
         </div>
       </div>

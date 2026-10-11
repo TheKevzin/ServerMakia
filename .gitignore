@@ -23,6 +23,10 @@ drive-config.json
 .webhook-url
 .tunnel-url
 
+# Base de datos
+*.db
+*.db-journal
+
 # Backups y mundos pesados de Minecraft
 *.zip
 *.tar.gz
@@ -35,6 +39,15 @@ Server/logs/
 Server/cache/
 Server/.fabric/
 
+# Archivos del servidor que NO deben estar en la raíz del repo
+/banned-ips.json
+/banned-players.json
+/ops.json
+/whitelist.json
+/server.properties
+
+# Build artifacts
+tsconfig.tsbuildinfo
 
 # Sistema operativo
 .DS_Store

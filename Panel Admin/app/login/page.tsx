@@ -24,7 +24,7 @@ export default function LoginPage() {
       
       if (res.ok) {
         toast.success('Access authorized. Redirecting...')
-        window.location.href = '/' // Force hard redirect
+        window.location.href = '/dashboard' // Redirect to dashboard
       } else {
         setIsError(true)
         toast.error('Invalid credentials')

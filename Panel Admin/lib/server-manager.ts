@@ -3,7 +3,7 @@ import path from 'path';
 import { Rcon } from 'rcon-client';
 import fs from 'fs';
 
-const SERVER_DIR = path.resolve(process.cwd(), '../server');
+import { SERVER_DIR } from '@/lib/server-config';
 
 export class ServerManager {
   
@@ -89,24 +89,27 @@ export class ServerManager {
   }
 
   static async getRcon() {
-    let rconPort = 25575;
-    let rconPass = 'minecraft';
+    let rconHost = process.env.RCON_HOST || '127.0.0.1';
+    let rconPort = process.env.RCON_PORT ? parseInt(process.env.RCON_PORT) : 25575;
+    let rconPass = process.env.RCON_PASSWORD || '';
 
-    try {
-      const propPath = path.join(SERVER_DIR, 'server.properties');
-      const props = fs.readFileSync(propPath, 'utf8');
-      const passMatch = props.match(/rcon\.password=(.*)/);
-      const portMatch = props.match(/rcon\.port=(\d+)/);
-      if (passMatch) rconPass = passMatch[1].trim();
-      if (portMatch) rconPort = parseInt(portMatch[1].trim());
-    } catch (e) {
-      // Fallback
+    if (!rconPass) {
+      try {
+        const propPath = path.join(SERVER_DIR, 'server.properties');
+        const props = fs.readFileSync(propPath, 'utf8');
+        const passMatch = props.match(/rcon\.password=(.*)/);
+        const portMatch = props.match(/rcon\.port=(\d+)/);
+        if (passMatch) rconPass = passMatch[1].trim();
+        if (portMatch && !process.env.RCON_PORT) rconPort = parseInt(portMatch[1].trim());
+      } catch (e) {
+        // Fallback
+      }
     }
 
     const rcon = await Rcon.connect({
-      host: '127.0.0.1',
+      host: rconHost,
       port: rconPort,
-      password: rconPass,
+      password: rconPass || 'minecraft',
       timeout: 2000
     });
 
