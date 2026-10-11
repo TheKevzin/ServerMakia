@@ -6,6 +6,7 @@ import {
   getItemTextureUrl,
   getBlockTextureUrl,
   ITEM_MAX_DURABILITY,
+  parseNbtItem,
 } from '@/lib/minecraft-names';
 import fs from 'fs';
 import path from 'path';
@@ -17,37 +18,6 @@ function formatDimension(dim: string | undefined): string {
   if (dim.includes('the_nether') || dim.includes('nether')) return 'minecraft:the_nether';
   if (dim.includes('the_end') || dim.includes('end')) return 'minecraft:the_end';
   return 'minecraft:overworld';
-}
-
-function parseItem(rawItem: any) {
-  if (!rawItem || !rawItem.id) return null;
-  const id = String(rawItem.id);
-  const count = Number(rawItem.count ?? rawItem.Count ?? 1);
-  const slot = Number(rawItem.Slot ?? 0);
-
-  let damage: number | null = null;
-  if (rawItem.components && typeof rawItem.components['minecraft:damage'] === 'number') {
-    damage = rawItem.components['minecraft:damage'];
-  } else if (rawItem.tag && typeof rawItem.tag.Damage === 'number') {
-    damage = rawItem.tag.Damage;
-  }
-
-  const maxDamage = ITEM_MAX_DURABILITY[id] || null;
-  let durabilityPct: number | null = null;
-  if (damage !== null && maxDamage !== null) {
-    durabilityPct = Math.max(0, Math.min(100, Math.round(((maxDamage - damage) / maxDamage) * 100)));
-  }
-
-  return {
-    slot,
-    id,
-    name: translateMinecraft(id),
-    count,
-    damage,
-    maxDamage,
-    durabilityPct,
-    textureUrl: getItemTextureUrl(id),
-  };
 }
 
 export async function GET(
@@ -206,17 +176,56 @@ export async function GET(
         // Parse Inventory slots
         if (Array.isArray(nbt.Inventory)) {
           for (const raw of nbt.Inventory) {
-            const parsed = parseItem(raw);
+            const parsed = parseNbtItem(raw);
             if (parsed) {
               inventoryBySlot[parsed.slot] = parsed;
             }
           }
         }
 
+        // Parse equipment (modern Minecraft 1.20.5+ / 1.21+ / Fabric data format)
+        if (nbt.equipment && typeof nbt.equipment === 'object') {
+          const equipSlotMap: Record<string, number> = {
+            head: 103,
+            chest: 102,
+            legs: 101,
+            feet: 100,
+            offhand: -106,
+          };
+          for (const [key, raw] of Object.entries(nbt.equipment)) {
+            if (raw && typeof raw === 'object' && equipSlotMap[key] !== undefined) {
+              const slot = equipSlotMap[key];
+              const parsed = parseNbtItem(raw, slot);
+              if (parsed) {
+                parsed.slot = slot;
+                inventoryBySlot[slot] = parsed;
+              }
+            }
+          }
+        }
+
+        // Fallback for LivingEntity ArmorItems and HandItems
+        if (Array.isArray(nbt.ArmorItems)) {
+          nbt.ArmorItems.forEach((raw: any, idx: number) => {
+            const slot = 100 + idx;
+            if (raw && raw.id && !inventoryBySlot[slot]) {
+              const parsed = parseNbtItem(raw, slot);
+              if (parsed) inventoryBySlot[slot] = parsed;
+            }
+          });
+        }
+        if (Array.isArray(nbt.HandItems) && nbt.HandItems[1]) {
+          const raw = nbt.HandItems[1];
+          if (raw && raw.id && !inventoryBySlot[-106]) {
+            const parsed = parseNbtItem(raw, -106);
+            if (parsed) inventoryBySlot[-106] = parsed;
+          }
+        }
+
         // Parse Ender chest items
         if (Array.isArray(nbt.EnderItems)) {
           for (const raw of nbt.EnderItems) {
-            const parsed = parseItem(raw);
+            const parsed = parseNbtItem(raw);
             if (parsed) enderItems.push(parsed);
           }
         }

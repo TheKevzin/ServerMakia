@@ -16,6 +16,8 @@ import {
   Package,
   LogOut,
   Ban,
+  Shield,
+  Sparkles,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from '@/lib/toast'
@@ -196,6 +198,76 @@ export function PlayerProfileModal({
             <StatPill icon={CalendarDays} label="Primera Conexión" value={player.joined || 'Reciente'} />
           </div>
 
+          {/* Equipment / Armor */}
+          {player.equipment && (
+            <div>
+              <p className="mb-2 flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
+                <Shield className="size-4 text-primary" />
+                Equipamiento y Armadura
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {[
+                  { key: 'head', label: 'Casco', item: player.equipment.head },
+                  { key: 'chest', label: 'Pechera', item: player.equipment.chest },
+                  { key: 'legs', label: 'Pantalones', item: player.equipment.legs },
+                  { key: 'feet', label: 'Botas', item: player.equipment.feet },
+                  { key: 'offhand', label: 'Mano Sec.', item: player.equipment.offhand },
+                ].map(({ key, label, item }) => (
+                  <div
+                    key={key}
+                    className={cn(
+                      "flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center relative transition-all min-h-[92px]",
+                      item
+                        ? "bg-white/[0.04] border-primary/40 hover:bg-white/[0.07]"
+                        : "bg-white/[0.01] border-white/5 opacity-60"
+                    )}
+                  >
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                      {label}
+                    </span>
+                    {item ? (
+                      <>
+                        <div className="relative size-8 flex items-center justify-center">
+                          <img
+                            src={item.textureUrl}
+                            alt={item.item}
+                            className="size-7 object-contain drop-shadow"
+                            onError={(e) => {
+                              const t = e.currentTarget
+                              if (!t.src.includes('/block/') && item.id) {
+                                t.src = `https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/${item.id.replace(/^minecraft:/, '')}.png`
+                              }
+                            }}
+                          />
+                          {item.isEnchanted && (
+                            <Sparkles className="size-3 text-purple-400 absolute -top-1 -right-1 animate-pulse" />
+                          )}
+                        </div>
+                        <p className={cn("text-[11px] font-semibold truncate w-full mt-1", item.isEnchanted ? "text-purple-300 font-bold" : "text-foreground")}>
+                          {item.item}
+                        </p>
+                        {item.enchantments && item.enchantments.length > 0 && (
+                          <div className="flex flex-wrap gap-0.5 justify-center mt-1 max-w-full">
+                            {item.enchantments.slice(0, 2).map((ench, ei) => (
+                              <span key={ei} className="text-[9px] px-1 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 truncate max-w-[80px]">
+                                {ench}
+                              </span>
+                            ))}
+                            {item.enchantments.length > 2 && (
+                              <span className="text-[8px] text-muted-foreground">+{item.enchantments.length - 2}</span>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-[11px] text-muted-foreground/60 py-2">— Vacío —</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Inventory */}
           <div>
             <div className="mb-2 flex items-center justify-between">
@@ -204,18 +276,47 @@ export function PlayerProfileModal({
                 Inventario Actual
               </p>
               <span className="text-xs text-muted-foreground">
-                {player.inventory?.filter(s => s.qty > 0).length || 0} objetos
+                {player.inventory?.filter(s => s.qty > 0 && s.item !== 'Inventario vacío').length || 0} objetos
               </span>
             </div>
             
             <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border max-h-56 overflow-y-auto custom-scrollbar">
-              {player.inventory && player.inventory.length > 0 && player.inventory[0].qty > 0 ? (
+              {player.inventory && player.inventory.length > 0 && player.inventory[0].qty > 0 && player.inventory[0].item !== 'Inventario vacío' ? (
                 player.inventory.map((slot, i) => (
                   <li
                     key={`${slot.item}-${i}`}
-                    className="flex items-center justify-between bg-white/[0.02] px-4 py-2 text-xs transition-colors hover:bg-white/[0.05]"
+                    className="flex items-center justify-between gap-3 bg-white/[0.02] px-4 py-2 text-xs transition-colors hover:bg-white/[0.05]"
                   >
-                    <span className="font-medium text-foreground truncate max-w-[280px]">{slot.item}</span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {slot.textureUrl ? (
+                        <div className="relative size-7 shrink-0 flex items-center justify-center rounded-lg bg-black/40 border border-white/5">
+                          <img
+                            src={slot.textureUrl}
+                            alt={slot.item}
+                            className="size-5 object-contain"
+                            onError={(e) => {
+                              const t = e.currentTarget
+                              if (!t.src.includes('/block/') && slot.id) {
+                                t.src = `https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/${slot.id.replace(/^minecraft:/, '')}.png`
+                              }
+                            }}
+                          />
+                          {slot.isEnchanted && (
+                            <Sparkles className="size-2.5 text-purple-400 absolute -top-1 -right-1" />
+                          )}
+                        </div>
+                      ) : null}
+                      <div className="flex flex-col min-w-0">
+                        <span className={cn("font-medium truncate max-w-[260px]", slot.isEnchanted ? "text-purple-300 font-semibold" : "text-foreground")}>
+                          {slot.item}
+                        </span>
+                        {slot.enchantments && slot.enchantments.length > 0 && (
+                          <span className="text-[10px] text-purple-400/90 truncate max-w-[260px]">
+                            ✦ {slot.enchantments.join(', ')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     <span className="rounded-md bg-primary/20 border border-primary/30 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary shrink-0">
                       x{slot.qty}
                     </span>

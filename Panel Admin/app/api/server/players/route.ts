@@ -1,16 +1,11 @@
 import { NextResponse } from 'next/server';
 import { ServerManager } from '@/lib/server-manager';
 import { parseNbt } from '@/lib/nbt';
+import { translateMinecraft, getItemTextureUrl, parseNbtItem } from '@/lib/minecraft-names';
 import fs from 'fs';
 import path from 'path';
 
 import { SERVER_DIR, WORLD_DIR } from '@/lib/server-config';
-
-function formatItemName(id: string) {
-  if (!id) return 'Unknown Item';
-  const clean = id.replace(/^minecraft:/, '').replace(/_/g, ' ');
-  return clean.replace(/\b\w/g, l => l.toUpperCase());
-}
 
 function formatDimension(dim: string) {
   if (!dim) return 'Overworld';
@@ -46,75 +41,65 @@ export async function GET() {
         }
       }
     } catch (e) {
-      // Ignore
+      // RCON unavailable
     }
   }
 
-  // 2. Read ops.json to identify Admins
-  const adminSet = new Set<string>();
-  try {
-    const opsPath = path.join(SERVER_DIR, 'ops.json');
-    if (fs.existsSync(opsPath)) {
-      const ops = JSON.parse(fs.readFileSync(opsPath, 'utf8'));
-      if (Array.isArray(ops)) {
-        for (const op of ops) {
-          if (op.name) adminSet.add(op.name.toLowerCase());
-        }
-      }
-    }
-  } catch {}
+  // 2. Load cached players from usercache.json
+  const usercachePath = path.join(SERVER_DIR, 'usercache.json');
+  let cachedPlayers: { name: string; uuid: string }[] = [];
 
-  // 3. Read usercache.json for known players
-  const rawPlayers: { uuid: string; name: string }[] = [];
-  try {
-    const usercachePath = path.join(SERVER_DIR, 'usercache.json');
-    if (fs.existsSync(usercachePath)) {
-      const cacheData = JSON.parse(fs.readFileSync(usercachePath, 'utf8'));
-      if (Array.isArray(cacheData)) {
-        for (const p of cacheData) {
-          if (p.name && p.uuid) {
-            rawPlayers.push({ uuid: p.uuid, name: p.name });
-          }
-        }
-      }
-    }
-  } catch (e) {
-    console.error('Error reading usercache.json', e);
-  }
-
-  // Make sure any online players not in cache are also included
-  for (const name of onlineNames) {
-    if (!rawPlayers.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-      rawPlayers.push({ uuid: name, name });
+  if (fs.existsSync(usercachePath)) {
+    try {
+      const data = fs.readFileSync(usercachePath, 'utf8');
+      cachedPlayers = JSON.parse(data);
+    } catch (e) {
+      console.error('Error reading usercache.json', e);
     }
   }
 
-  // 4. Assemble full player profile from playerdata and stats
-  const fullPlayers = rawPlayers.map(p => {
-    const isOnline = onlineNames.some(n => n.toLowerCase() === p.name.toLowerCase());
-    const isAdmin = adminSet.has(p.name.toLowerCase());
+  // 3. Load ops.json to determine admin status
+  const opsPath = path.join(SERVER_DIR, 'ops.json');
+  let ops: { uuid: string; name: string; level: number }[] = [];
+  if (fs.existsSync(opsPath)) {
+    try {
+      ops = JSON.parse(fs.readFileSync(opsPath, 'utf8'));
+    } catch (e) {
+      console.error('Error reading ops.json', e);
+    }
+  }
+
+  // Deduplicate cachedPlayers by UUID
+  const uniquePlayers = Array.from(
+    new Map(cachedPlayers.map(p => [p.uuid, p])).values()
+  );
+
+  // 4. Enrich each player with playerdata (.dat) and stats (.json)
+  const fullPlayers = uniquePlayers.map(p => {
     const uuid = p.uuid;
+    const isOnline = onlineNames.some(on => on.toLowerCase() === p.name.toLowerCase());
+    const isAdmin = ops.some(op => op.uuid === uuid || op.name.toLowerCase() === p.name.toLowerCase());
 
-    // Default fallback stats
     let health = 20;
     let food = 20;
     let xpLevel = 0;
     let gamemode: 'Survival' | 'Creative' | 'Adventure' = 'Survival';
     let dimension: 'Overworld' | 'Nether' | 'The End' = 'Overworld';
     let coords = { x: 0, y: 64, z: 0 };
-    let inventory: { item: string; qty: number }[] = [];
+    let inventory: any[] = [];
+    let equipment: Record<string, any> = {};
     let playTicks = 0;
     let deaths = 0;
     let mobKills = 0;
     let blocksMined = 0;
-    let joined = 'Unknown';
+    let joined = 'Desconocido';
 
     // A. Parse playerdata (.dat)
     try {
       const datPath = path.join(WORLD_DIR, 'playerdata', `${uuid}.dat`);
       if (fs.existsSync(datPath)) {
         const stats = fs.statSync(datPath);
-        joined = stats.birthtime ? stats.birthtime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
+        joined = stats.birthtime ? stats.birthtime.toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Reciente';
 
         const nbtBuffer = fs.readFileSync(datPath);
         const nbt = parseNbt(nbtBuffer);
@@ -136,16 +121,50 @@ export async function GET() {
 
           // Parse Inventory
           if (Array.isArray(nbt.Inventory)) {
-            const itemMap = new Map<string, number>();
             for (const item of nbt.Inventory) {
-              const rawId = item.id || item.item;
-              const count = item.count ?? item.Count ?? 1;
-              if (rawId && typeof rawId === 'string') {
-                const formattedName = formatItemName(rawId);
-                itemMap.set(formattedName, (itemMap.get(formattedName) || 0) + Number(count));
+              const parsed = parseNbtItem(item);
+              if (parsed) {
+                // If it's armor in legacy slot, track in equipment
+                if (parsed.slot === 103) equipment.head = { item: parsed.name, qty: parsed.count, id: parsed.id, textureUrl: parsed.textureUrl, enchantments: parsed.enchantments.map(e => e.formatted), durabilityPct: parsed.durabilityPct, isEnchanted: parsed.isEnchanted };
+                else if (parsed.slot === 102) equipment.chest = { item: parsed.name, qty: parsed.count, id: parsed.id, textureUrl: parsed.textureUrl, enchantments: parsed.enchantments.map(e => e.formatted), durabilityPct: parsed.durabilityPct, isEnchanted: parsed.isEnchanted };
+                else if (parsed.slot === 101) equipment.legs = { item: parsed.name, qty: parsed.count, id: parsed.id, textureUrl: parsed.textureUrl, enchantments: parsed.enchantments.map(e => e.formatted), durabilityPct: parsed.durabilityPct, isEnchanted: parsed.isEnchanted };
+                else if (parsed.slot === 100) equipment.feet = { item: parsed.name, qty: parsed.count, id: parsed.id, textureUrl: parsed.textureUrl, enchantments: parsed.enchantments.map(e => e.formatted), durabilityPct: parsed.durabilityPct, isEnchanted: parsed.isEnchanted };
+                else if (parsed.slot === -106 || parsed.slot === 150) equipment.offhand = { item: parsed.name, qty: parsed.count, id: parsed.id, textureUrl: parsed.textureUrl, enchantments: parsed.enchantments.map(e => e.formatted), durabilityPct: parsed.durabilityPct, isEnchanted: parsed.isEnchanted };
+
+                inventory.push({
+                  item: parsed.customName ? `${parsed.customName} (${parsed.name})` : parsed.name,
+                  qty: parsed.count,
+                  id: parsed.id,
+                  textureUrl: parsed.textureUrl,
+                  enchantments: parsed.enchantments.map(e => e.formatted),
+                  durabilityPct: parsed.durabilityPct,
+                  isEnchanted: parsed.isEnchanted,
+                  customName: parsed.customName,
+                });
               }
             }
-            inventory = Array.from(itemMap.entries()).map(([item, qty]) => ({ item, qty }));
+          }
+
+          // Parse modern equipment
+          if (nbt.equipment && typeof nbt.equipment === 'object') {
+            const eqKeys = ['head', 'chest', 'legs', 'feet', 'offhand'] as const;
+            for (const k of eqKeys) {
+              if (nbt.equipment[k]) {
+                const parsed = parseNbtItem(nbt.equipment[k]);
+                if (parsed) {
+                  equipment[k] = {
+                    item: parsed.customName ? `${parsed.customName} (${parsed.name})` : parsed.name,
+                    qty: parsed.count,
+                    id: parsed.id,
+                    textureUrl: parsed.textureUrl,
+                    enchantments: parsed.enchantments.map(e => e.formatted),
+                    durabilityPct: parsed.durabilityPct,
+                    isEnchanted: parsed.isEnchanted,
+                    customName: parsed.customName,
+                  };
+                }
+              }
+            }
           }
         }
       }
@@ -187,7 +206,7 @@ export async function GET() {
       playtime: playtimeStr,
       latency: isOnline ? Math.floor(Math.random() * 25) + 15 : 0,
       isActive: isOnline,
-      lastSeen: isOnline ? 'Online now' : 'Offline',
+      lastSeen: isOnline ? 'En línea ahora' : 'Desconectado',
       joined,
       health,
       food,
@@ -198,7 +217,8 @@ export async function GET() {
       deaths,
       blocksMined,
       mobKills,
-      inventory: inventory.length > 0 ? inventory : [{ item: 'Empty Inventory', qty: 0 }],
+      inventory: inventory.length > 0 ? inventory : [{ item: 'Inventario vacío', qty: 0 }],
+      equipment,
     };
   });
 

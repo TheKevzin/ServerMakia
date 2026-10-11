@@ -20,19 +20,64 @@ import {
   Gamepad2,
   ChevronDown,
   ChevronUp,
+  Sparkles,
+  PackageOpen,
+  Info,
+  Box,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from '@/lib/toast'
+
+function HelmetIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 12a6 6 0 0 1 12 0v5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-5Z" />
+      <path d="M9 13h6" />
+      <path d="M12 13v4" />
+    </svg>
+  )
+}
+
+function ChestplateIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h4l4 4 4-4h4v6l-2 3v7H6v-7L4 10V4Z" />
+    </svg>
+  )
+}
+
+function LeggingsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 4h14v7l-2 9h-3l-2-7-2 7H7l-2-9V4Z" />
+    </svg>
+  )
+}
+
+function BootsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 4h5v8l3 2v4H4v-6l1-8Z" />
+      <path d="M14 4h5l1 8v6h-9v-4l3-2V4Z" />
+    </svg>
+  )
+}
 
 type ItemSlot = {
   slot: number
   id: string
   name: string
+  customName?: string | null
   count: number
   damage: number | null
   maxDamage: number | null
   durabilityPct: number | null
   textureUrl: string
+  enchantments?: { id: string; name: string; level: number; formatted: string }[]
+  isEnchanted?: boolean
+  trim?: { pattern: string; material: string } | null
+  repairCost?: number | null
+  lore?: string[]
 }
 
 type DetailedPlayer = {
@@ -175,20 +220,38 @@ function MinecraftShank({ state }: { state: 'full' | 'half' | 'empty' }) {
   )
 }
 
-function ItemSlotBox({ item, placeholderIcon: Placeholder }: { item?: ItemSlot; placeholderIcon?: any }) {
+function ItemSlotBox({
+  item,
+  placeholderIcon: Placeholder,
+  isSelected,
+  onClick,
+  onHover,
+}: {
+  item?: ItemSlot
+  placeholderIcon?: any
+  isSelected?: boolean
+  onClick?: () => void
+  onHover?: (item: ItemSlot | null) => void
+}) {
   return (
     <div
-      title={item ? `${item.name} (${item.count > 1 ? 'x' + item.count : '1'})` : undefined}
+      onClick={onClick}
+      onMouseEnter={() => onHover?.(item || null)}
+      onMouseLeave={() => onHover?.(null)}
       className={cn(
-        "size-10 sm:size-11 rounded-md border border-[#3b4252] bg-[#1a1f26] p-1 flex items-center justify-center relative select-none transition-colors",
-        item ? "hover:border-primary/60 hover:bg-[#222933]" : "opacity-80"
+        "group size-10 sm:size-11 rounded-md border p-1 flex items-center justify-center relative select-none transition-all cursor-pointer",
+        isSelected
+          ? "border-primary bg-primary/20 ring-2 ring-primary/40 z-10"
+          : item
+          ? "border-[#3b4252] bg-[#1a1f26] hover:border-primary/60 hover:bg-[#222933]"
+          : "border-[#2b303c]/60 bg-[#14181f]/60 opacity-60 hover:opacity-80"
       )}
     >
       {item ? (
         <>
           <img
             src={item.textureUrl}
-            alt={item.name}
+            alt={item.customName || item.name}
             className="size-8 object-contain drop-shadow"
             onError={(e) => {
               // Try fallback to block texture or placeholder
@@ -201,13 +264,19 @@ function ItemSlotBox({ item, placeholderIcon: Placeholder }: { item?: ItemSlot; 
               }
             }}
           />
+          {item.isEnchanted && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/25 via-pink-500/15 to-indigo-500/25 rounded pointer-events-none animate-pulse" />
+              <Sparkles className="size-2 text-purple-300 absolute top-0.5 right-0.5 drop-shadow pointer-events-none" />
+            </>
+          )}
           {item.count > 1 && (
-            <span className="absolute bottom-0.5 right-1 font-mono text-[10px] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)]">
+            <span className="absolute bottom-0.5 right-1 font-mono text-[10px] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)] z-10">
               {item.count}
             </span>
           )}
           {item.durabilityPct !== null && (
-            <div className="absolute bottom-0.5 left-1 right-1 h-1 rounded-full bg-black/60 overflow-hidden">
+            <div className="absolute bottom-0.5 left-1 right-1 h-1 rounded-full bg-black/60 overflow-hidden z-10">
               <div
                 className={cn(
                   "h-full transition-all",
@@ -238,6 +307,9 @@ export function PlayerDetailView({
   const [loading, setLoading] = useState(true)
   const [showAllStats, setShowAllStats] = useState(false)
   const [actionPending, setActionPending] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<ItemSlot | null>(null)
+  const [hoveredItem, setHoveredItem] = useState<ItemSlot | null>(null)
+  const [showEnderChestModal, setShowEnderChestModal] = useState(false)
 
   // Fetch player details
   const fetchDetails = async () => {
@@ -466,7 +538,7 @@ export function PlayerDetailView({
           {/* Card: Inventario (Exact Minecraft Layout) */}
           <div className="glass flex flex-col rounded-3xl p-5 gap-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-heading text-sm font-semibold text-foreground">Inventario</h3>
+              <h3 className="font-heading text-sm font-semibold text-foreground">Inventario y Armadura</h3>
               <span className="text-xs text-muted-foreground">
                 {Object.keys(data.inventorySlots).length} objetos equipados
               </span>
@@ -476,10 +548,34 @@ export function PlayerDetailView({
               {/* Armor column + Offhand / Ender */}
               <div className="flex flex-row sm:flex-col gap-2 shrink-0">
                 {/* Armor (103: Helmet, 102: Chest, 101: Legs, 100: Boots) */}
-                <ItemSlotBox item={data.inventorySlots[103]} />
-                <ItemSlotBox item={data.inventorySlots[102]} />
-                <ItemSlotBox item={data.inventorySlots[101]} />
-                <ItemSlotBox item={data.inventorySlots[100]} />
+                <ItemSlotBox
+                  item={data.inventorySlots[103]}
+                  placeholderIcon={HelmetIcon}
+                  isSelected={selectedItem?.slot === 103}
+                  onClick={() => data.inventorySlots[103] && setSelectedItem(data.inventorySlots[103])}
+                  onHover={setHoveredItem}
+                />
+                <ItemSlotBox
+                  item={data.inventorySlots[102]}
+                  placeholderIcon={ChestplateIcon}
+                  isSelected={selectedItem?.slot === 102}
+                  onClick={() => data.inventorySlots[102] && setSelectedItem(data.inventorySlots[102])}
+                  onHover={setHoveredItem}
+                />
+                <ItemSlotBox
+                  item={data.inventorySlots[101]}
+                  placeholderIcon={LeggingsIcon}
+                  isSelected={selectedItem?.slot === 101}
+                  onClick={() => data.inventorySlots[101] && setSelectedItem(data.inventorySlots[101])}
+                  onHover={setHoveredItem}
+                />
+                <ItemSlotBox
+                  item={data.inventorySlots[100]}
+                  placeholderIcon={BootsIcon}
+                  isSelected={selectedItem?.slot === 100}
+                  onClick={() => data.inventorySlots[100] && setSelectedItem(data.inventorySlots[100])}
+                  onHover={setHoveredItem}
+                />
               </div>
 
               <div className="flex flex-row sm:flex-col gap-2 shrink-0">
@@ -499,9 +595,19 @@ export function PlayerDetailView({
                         }
                       : undefined
                   }
+                  placeholderIcon={Box}
+                  isSelected={showEnderChestModal}
+                  onClick={() => setShowEnderChestModal(true)}
+                  onHover={setHoveredItem}
                 />
                 {/* Offhand slot (-106) */}
-                <ItemSlotBox item={data.inventorySlots[-106]} placeholderIcon={Shield} />
+                <ItemSlotBox
+                  item={data.inventorySlots[-106]}
+                  placeholderIcon={Shield}
+                  isSelected={selectedItem?.slot === -106}
+                  onClick={() => data.inventorySlots[-106] && setSelectedItem(data.inventorySlots[-106])}
+                  onHover={setHoveredItem}
+                />
               </div>
 
               {/* Main inventory (9x3) + Hotbar (9x1) */}
@@ -510,18 +616,169 @@ export function PlayerDetailView({
                 <div className="grid grid-cols-9 gap-1.5">
                   {Array.from({ length: 27 }, (_, i) => {
                     const slotNum = 9 + i
-                    return <ItemSlotBox key={`inv-${slotNum}`} item={data.inventorySlots[slotNum]} />
+                    const item = data.inventorySlots[slotNum]
+                    return (
+                      <ItemSlotBox
+                        key={`inv-${slotNum}`}
+                        item={item}
+                        isSelected={selectedItem?.slot === slotNum}
+                        onClick={() => item && setSelectedItem(item)}
+                        onHover={setHoveredItem}
+                      />
+                    )
                   })}
                 </div>
 
                 {/* Hotbar 9x1 */}
                 <div className="grid grid-cols-9 gap-1.5 pt-1 border-t border-white/10">
                   {Array.from({ length: 9 }, (_, i) => {
-                    return <ItemSlotBox key={`hotbar-${i}`} item={data.inventorySlots[i]} />
+                    const item = data.inventorySlots[i]
+                    return (
+                      <ItemSlotBox
+                        key={`hotbar-${i}`}
+                        item={item}
+                        isSelected={selectedItem?.slot === i}
+                        onClick={() => item && setSelectedItem(item)}
+                        onHover={setHoveredItem}
+                      />
+                    )
                   })}
                 </div>
               </div>
             </div>
+
+            {/* Inspector de Objeto Seleccionado / Activo */}
+            {(() => {
+              const active =
+                hoveredItem ||
+                selectedItem ||
+                data.inventorySlots[103] ||
+                data.inventorySlots[0] ||
+                Object.values(data.inventorySlots)[0] ||
+                null
+
+              return (
+                <div className="rounded-2xl border border-white/10 bg-[#12151c]/90 p-4 transition-all">
+                  {active ? (
+                    <div className="flex flex-col sm:flex-row items-start gap-4">
+                      <div className="relative size-14 shrink-0 rounded-xl bg-black/50 border border-white/10 p-2 flex items-center justify-center">
+                        <img
+                          src={active.textureUrl}
+                          alt={active.customName || active.name}
+                          className="size-10 object-contain drop-shadow"
+                          onError={(e) => {
+                            const target = e.currentTarget
+                            if (!target.src.includes('/block/')) {
+                              target.src = `https://assets.mcasset.cloud/1.21.1/assets/minecraft/textures/block/${active.id.replace(/^minecraft:/, '')}.png`
+                            }
+                          }}
+                        />
+                        {active.isEnchanted && (
+                          <Sparkles className="size-3.5 text-purple-400 absolute -top-1 -right-1 animate-pulse" />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4
+                            className={cn(
+                              "text-base font-semibold",
+                              active.customName
+                                ? "text-amber-300 italic"
+                                : active.isEnchanted
+                                ? "text-[#d8b8f7]"
+                                : "text-foreground"
+                            )}
+                          >
+                            {active.customName || active.name}
+                          </h4>
+                          {active.customName && (
+                            <span className="text-xs text-muted-foreground">({active.name})</span>
+                          )}
+                          <span className="rounded bg-white/5 border border-white/10 px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                            {active.id}
+                          </span>
+                          {active.count > 1 && (
+                            <span className="rounded-md bg-primary/20 border border-primary/30 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
+                              x{active.count}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Durability */}
+                        {active.durabilityPct !== null && (
+                          <div className="mt-2 flex items-center gap-3 max-w-sm">
+                            <div className="flex-1 h-2 rounded-full bg-black/60 overflow-hidden border border-white/5">
+                              <div
+                                className={cn(
+                                  "h-full transition-all",
+                                  active.durabilityPct > 50
+                                    ? "bg-emerald-400"
+                                    : active.durabilityPct > 20
+                                    ? "bg-amber-400"
+                                    : "bg-rose-500"
+                                )}
+                                style={{ width: `${active.durabilityPct}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-mono tabular-nums text-muted-foreground">
+                              {active.maxDamage && active.damage !== null
+                                ? `Durabilidad: ${active.maxDamage - active.damage} / ${active.maxDamage}`
+                                : `${active.durabilityPct}%`}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Enchantments List */}
+                        {active.enchantments && active.enchantments.length > 0 && (
+                          <div className="mt-3">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-purple-400 mb-1.5 flex items-center gap-1.5">
+                              <Sparkles className="size-3.5" />
+                              Encantamientos ({active.enchantments.length})
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {active.enchantments.map((ench, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 rounded-lg bg-purple-500/15 border border-purple-500/30 px-2.5 py-1 text-xs font-medium text-purple-200"
+                                >
+                                  ✦ {ench.formatted}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Trim */}
+                        {active.trim && (
+                          <p className="mt-2 text-xs text-amber-300/90">
+                            ✦ Herrería: Material {active.trim.material} con diseño {active.trim.pattern}
+                          </p>
+                        )}
+
+                        {/* Lore */}
+                        {active.lore && active.lore.length > 0 && (
+                          <div className="mt-2 space-y-0.5 border-l-2 border-purple-500/40 pl-2">
+                            {active.lore.map((line, li) => (
+                              <p key={li} className="text-xs italic text-muted-foreground">
+                                {line}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground py-1">
+                      <Info className="size-4 text-primary shrink-0" />
+                      <span>
+                        Pasa el cursor o haz clic en cualquier casilla de la armadura o del inventario para inspeccionar sus detalles, encantamientos y durabilidad.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         </div>
 
@@ -861,6 +1118,64 @@ export function PlayerDetailView({
           </button>
         </div>
       </div>
+
+      {/* Modal: Cofre de Ender */}
+      {showEnderChestModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="glass flex w-full max-w-xl flex-col gap-4 rounded-3xl p-6 border border-white/10 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <Box className="size-5 text-primary" />
+                <h3 className="font-heading text-lg font-semibold text-foreground">
+                  Cofre de Ender — {playerName}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowEnderChestModal(false)}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Contiene {data.enderItems.length} objetos almacenados en el cofre interdimensional. Haz clic en cualquiera para inspeccionar sus encantamientos.
+            </p>
+
+            <div className="p-4 rounded-2xl bg-black/50 border border-white/10">
+              {data.enderItems.length > 0 ? (
+                <div className="grid grid-cols-9 gap-1.5 justify-center">
+                  {Array.from({ length: 27 }, (_, i) => {
+                    const enderItem = data.enderItems.find((e) => e.slot === i)
+                    return (
+                      <ItemSlotBox
+                        key={`ender-${i}`}
+                        item={enderItem}
+                        isSelected={selectedItem === enderItem && selectedItem !== null}
+                        onClick={() => enderItem && setSelectedItem(enderItem)}
+                        onHover={setHoveredItem}
+                      />
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="py-8 text-center text-xs text-muted-foreground">
+                  El cofre de Ender está vacío.
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setShowEnderChestModal(false)}
+                className="rounded-xl border border-border bg-white/5 px-4 py-2 text-xs font-medium text-foreground hover:bg-white/10"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,5 +1,24 @@
 // ── Player Types ───────────────────────────────────────────
 
+export type PlayerItemSummary = {
+  item: string
+  qty: number
+  id?: string
+  textureUrl?: string
+  enchantments?: string[]
+  durabilityPct?: number | null
+  isEnchanted?: boolean
+  customName?: string | null
+}
+
+export type PlayerEquipmentSummary = {
+  head?: PlayerItemSummary | null
+  chest?: PlayerItemSummary | null
+  legs?: PlayerItemSummary | null
+  feet?: PlayerItemSummary | null
+  offhand?: PlayerItemSummary | null
+}
+
 export type Player = {
   id: string
   name: string
@@ -20,7 +39,8 @@ export type Player = {
   deaths: number
   blocksMined: number
   mobKills: number
-  inventory: { item: string; qty: number }[]
+  inventory: PlayerItemSummary[]
+  equipment?: PlayerEquipmentSummary
 }
 
 export type BannedPlayer = {
